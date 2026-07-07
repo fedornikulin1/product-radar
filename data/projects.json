@@ -1,0 +1,453 @@
+[
+  {
+    "id": "arcticgrid-yakutsk",
+    "title": "ArcticGrid",
+    "short_description": "Мониторинг автономной энергетики и инфраструктуры северных территорий.",
+    "logo_url": "",
+    "categories": [
+      "ИИ",
+      "Инструменты"
+    ],
+    "price": "paid",
+    "link": "",
+    "telegram": "@technopark_yakutia",
+    "contact_email": "Technopark_14@mail.ru",
+    "contact_phone": "+7 (4112) 50-80-98",
+    "presentation_url": "https://example.com/arcticgrid-deck",
+    "full_description": "ArcticGrid объединяет телеметрию удалённых объектов, предупреждает об отклонениях и помогает планировать обслуживание оборудования в условиях Крайнего Севера.",
+    "for_whom": "B2B и B2G: энергетические компании, промышленные площадки, муниципалитеты и операторы удалённой инфраструктуры.",
+    "problem": "Аварии на удалённых объектах обнаруживаются поздно, а выезды специалистов занимают много времени и стоят дорого.",
+    "solution": "Единая панель телеметрии, прогнозирование рисков и приоритизация выездного обслуживания.",
+    "advantages": "Работа при нестабильной связи; Предиктивная аналитика; Поддержка IoT; Карта объектов; Настраиваемые уведомления",
+    "cta": "Ищем пилотные объекты и индустриального партнёра.",
+    "additional": "Демонстрационная карточка проекта для будущего портфеля Центра инноваций Якутии.",
+    "gallery_urls": [
+      "https://placehold.co/1200x800/0f766e/ffffff?text=ArcticGrid+01",
+      "https://placehold.co/1200x800/111827/ffffff?text=ArcticGrid+02",
+      "https://placehold.co/1200x800/1f2937/ffffff?text=ArcticGrid+03"
+    ],
+    "video_url": "",
+    "team": "6 человек",
+    "technologies": "Go, React, PostgreSQL, Grafana, IoT",
+    "status": "developing",
+    "investment_stage": "seed",
+    "audience_type": "b2b",
+    "audience_types": [
+      "b2b",
+      "b2g"
+    ],
+    "placement_type": "saas",
+    "placement_types": [
+      "saas"
+    ],
+    "community_statuses": [
+      "Ищу инвестиции",
+      "Ищу партнерства и коллабы"
+    ],
+    "country": "Россия",
+    "city": "Якутск",
+    "team_members": [],
+    "team_open_roles": [
+      "Инженер IoT",
+      "Менеджер пилотных проектов"
+    ],
+    "readiness_items": [
+      "mvp",
+      "pilot",
+      "users",
+      "team",
+      "deck",
+      "unit_economics",
+      "legal"
+    ],
+    "readiness_score": 78,
+    "cooperation_needs": [
+      "pilot",
+      "investment",
+      "tech_partner"
+    ],
+    "cooperation_offer": "Совместный пилот на удалённом объекте с аналитикой результатов и дорожной картой масштабирования.",
+    "cooperation_priority": "now",
+    "change_log": [],
+    "crm": {
+      "owner": "Отдел сопровождения проектов",
+      "priority": "high",
+      "status": "ready_for_showcase",
+      "notes": "Демонстрационные данные.",
+      "last_contact_at": "",
+      "next_action": "Подобрать пилотную площадку.",
+      "show_public": true
+    },
+    "created_at": "2026-01-10T09:30:00.000Z",
+    "updated_at": "2026-06-28T09:30:00.000Z"
+  },
+  {
+    "id": "permafrost-guard-yakutsk",
+    "title": "Permafrost Guard",
+    "short_description": "Цифровой контроль состояния зданий и грунтов в зоне вечной мерзлоты.",
+    "logo_url": "",
+    "categories": [
+      "ИИ",
+      "Другое"
+    ],
+    "price": "paid",
+    "link": "",
+    "telegram": "@technopark_yakutia",
+    "contact_email": "Technopark_14@mail.ru",
+    "contact_phone": "+7 (4112) 50-80-98",
+    "presentation_url": "https://example.com/permafrost-guard-deck",
+    "full_description": "Система собирает показания датчиков температуры и деформации, формирует цифровой профиль объекта и помогает заранее замечать опасные изменения.",
+    "for_whom": "B2B и B2G: застройщики, управляющие компании, промышленные предприятия и городские службы.",
+    "problem": "Изменение состояния мерзлоты может привести к деформациям, но ручные обследования проводятся редко и дают запоздалую картину.",
+    "solution": "Сеть датчиков, кабинет инженера и автоматические отчёты о динамике состояния основания.",
+    "advantages": "Раннее обнаружение рисков; История измерений; Инженерные отчёты; Работа с распределёнными объектами",
+    "cta": "Ищем пилот на жилом или промышленном объекте.",
+    "additional": "Демонстрационная карточка проекта для будущего портфеля Центра инноваций Якутии.",
+    "gallery_urls": [
+      "https://placehold.co/1200x800/1d4ed8/ffffff?text=Permafrost%20Guard+01",
+      "https://placehold.co/1200x800/111827/ffffff?text=Permafrost%20Guard+02",
+      "https://placehold.co/1200x800/1f2937/ffffff?text=Permafrost%20Guard+03"
+    ],
+    "video_url": "",
+    "team": "5 человек",
+    "technologies": "Python, FastAPI, TimescaleDB, LoRaWAN, React",
+    "status": "developing",
+    "investment_stage": "seed",
+    "audience_type": "b2b",
+    "audience_types": [
+      "b2b",
+      "b2g"
+    ],
+    "placement_type": "on_premise",
+    "placement_types": [
+      "on_premise"
+    ],
+    "community_statuses": [
+      "Ищу партнерства и коллабы"
+    ],
+    "country": "Россия",
+    "city": "Якутск",
+    "team_members": [],
+    "team_open_roles": [
+      "Инженер-геокриолог"
+    ],
+    "readiness_items": [
+      "mvp",
+      "pilot",
+      "team",
+      "deck",
+      "legal",
+      "gtm"
+    ],
+    "readiness_score": 67,
+    "cooperation_needs": [
+      "pilot",
+      "tech_partner"
+    ],
+    "cooperation_offer": "Оснащение тестового объекта датчиками и совместная оценка экономического эффекта.",
+    "cooperation_priority": "now",
+    "change_log": [],
+    "crm": {
+      "owner": "Проектный офис",
+      "priority": "high",
+      "status": "ready_for_showcase",
+      "notes": "Демонстрационные данные.",
+      "last_contact_at": "",
+      "next_action": "Согласовать объект для пилота.",
+      "show_public": true
+    },
+    "created_at": "2026-02-04T10:00:00.000Z",
+    "updated_at": "2026-06-26T10:00:00.000Z"
+  },
+  {
+    "id": "northroute-neryungri",
+    "title": "NorthRoute",
+    "short_description": "Планирование северной логистики с учётом погоды, зимников и рисков маршрута.",
+    "logo_url": "",
+    "categories": [
+      "Инструменты",
+      "ИИ"
+    ],
+    "price": "trial",
+    "link": "",
+    "telegram": "@technopark_yakutia",
+    "contact_email": "Technopark_14@mail.ru",
+    "contact_phone": "+7 (4112) 50-80-98",
+    "presentation_url": "https://example.com/northroute-deck",
+    "full_description": "NorthRoute помогает перевозчикам планировать рейсы по сложным северным маршрутам, учитывать ограничения и оперативно перестраивать доставку.",
+    "for_whom": "B2B: транспортные компании, поставщики, добывающие предприятия и региональные дистрибьюторы.",
+    "problem": "Стандартные навигаторы не учитывают сезонность, состояние зимников и специфические ограничения северной логистики.",
+    "solution": "Маршрутизация с отраслевыми данными, предупреждениями и расчётом сроков доставки.",
+    "advantages": "Учёт сезонных дорог; Контроль рейсов; Прогноз задержек; Кабинет диспетчера; API для интеграций",
+    "cta": "Ищем транспортные компании для расширенного пилота.",
+    "additional": "Демонстрационная карточка проекта для будущего портфеля Центра инноваций Якутии.",
+    "gallery_urls": [
+      "https://placehold.co/1200x800/7c3aed/ffffff?text=NorthRoute+01",
+      "https://placehold.co/1200x800/111827/ffffff?text=NorthRoute+02",
+      "https://placehold.co/1200x800/1f2937/ffffff?text=NorthRoute+03"
+    ],
+    "video_url": "",
+    "team": "7 человек",
+    "technologies": "Next.js, NestJS, PostgreSQL, PostGIS, Python",
+    "status": "developing",
+    "investment_stage": "startup",
+    "audience_type": "b2b",
+    "audience_types": [
+      "b2b"
+    ],
+    "placement_type": "saas",
+    "placement_types": [
+      "saas"
+    ],
+    "community_statuses": [
+      "Ищу инвестиции",
+      "Ищу партнерства и коллабы"
+    ],
+    "country": "Россия",
+    "city": "Нерюнгри",
+    "team_members": [],
+    "team_open_roles": [
+      "B2B Sales"
+    ],
+    "readiness_items": [
+      "mvp",
+      "pilot",
+      "users",
+      "revenue",
+      "team",
+      "deck",
+      "gtm"
+    ],
+    "readiness_score": 78,
+    "cooperation_needs": [
+      "investment",
+      "sales_partner",
+      "distribution_partner"
+    ],
+    "cooperation_offer": "Интеграция с маршрутами партнёра и совместное масштабирование решения.",
+    "cooperation_priority": "soon",
+    "change_log": [],
+    "crm": {
+      "owner": "Инвестиционный менеджер",
+      "priority": "high",
+      "status": "ready_for_showcase",
+      "notes": "Демонстрационные данные.",
+      "last_contact_at": "",
+      "next_action": "Подготовить инвесторский обзор.",
+      "show_public": true
+    },
+    "created_at": "2026-03-12T10:00:00.000Z",
+    "updated_at": "2026-06-24T10:00:00.000Z"
+  },
+  {
+    "id": "sakhalingua-yakutsk",
+    "title": "SakhaLingua",
+    "short_description": "Цифровая платформа для изучения якутского языка и создания учебных материалов.",
+    "logo_url": "",
+    "categories": [
+      "Образование",
+      "ИИ"
+    ],
+    "price": "freemium",
+    "link": "https://example.com",
+    "telegram": "@technopark_yakutia",
+    "contact_email": "Technopark_14@mail.ru",
+    "contact_phone": "+7 (4112) 50-80-98",
+    "presentation_url": "/uploads/e1675301-f27b-4b0c-92d5-738bb922a244.pptx",
+    "full_description": "SakhaLingua объединяет интерактивные уроки, упражнения по произношению и инструменты для преподавателей, которые помогают быстро собирать учебные курсы.",
+    "for_whom": "B2C, B2B и B2G: школьники, взрослые пользователи, преподаватели и образовательные организации.",
+    "problem": "Современных цифровых материалов по якутскому языку мало, а преподавателям сложно адаптировать контент под разные уровни.",
+    "solution": "Мобильные уроки, тренажёр произношения и конструктор заданий для преподавателя.",
+    "advantages": "Локализованный контент; Игровая механика; Кабинет преподавателя; Поддержка самостоятельного обучения",
+    "cta": "Ищем школы, преподавателей и экспертов по языку.",
+    "additional": "Демонстрационная карточка проекта для будущего портфеля Центра инноваций Якутии.",
+    "gallery_urls": [
+      "https://placehold.co/1200x800/2563eb/ffffff?text=SakhaLingua+01",
+      "https://placehold.co/1200x800/111827/ffffff?text=SakhaLingua+02",
+      "https://placehold.co/1200x800/1f2937/ffffff?text=SakhaLingua+03"
+    ],
+    "video_url": "",
+    "team": "4 человека",
+    "technologies": "React Native, Next.js, Python, Speech-to-Text",
+    "status": "developing",
+    "investment_stage": "pre_seed",
+    "audience_type": "b2c",
+    "audience_types": [
+      "b2c",
+      "b2g"
+    ],
+    "placement_type": "saas",
+    "placement_types": [
+      "saas"
+    ],
+    "community_statuses": [
+      "Ищу ментора",
+      "Набираю людей в команду"
+    ],
+    "country": "Россия",
+    "city": "Мирный",
+    "team_members": [],
+    "team_open_roles": [
+      "Методист",
+      "Эксперт по якутскому языку"
+    ],
+    "readiness_items": [
+      "mvp",
+      "users",
+      "team",
+      "legal",
+      "gtm"
+    ],
+    "readiness_score": 56,
+    "cooperation_needs": [
+      "pilot",
+      "mentor",
+      "cofounder"
+    ],
+    "cooperation_offer": "Бесплатный пилот для учебной группы и совместная разработка методических материалов.",
+    "cooperation_priority": "soon",
+    "change_log": [
+      {
+        "id": "308948fb-b0a7-4fcd-8505-e21db8dff8c6",
+        "created_at": "2026-07-06T06:13:45.279Z",
+        "type": "updated",
+        "text": "Проект обновлён.",
+        "public": false
+      },
+      {
+        "id": "10dfcd8f-4ffa-4cb7-8649-4691522059d1",
+        "created_at": "2026-07-03T08:28:35.790Z",
+        "type": "crm_updated",
+        "text": "Обновлены внутренние CRM-данные проекта.",
+        "public": false
+      },
+      {
+        "id": "68e3b516-1d64-4b54-8e4c-f3aa206effed",
+        "created_at": "2026-07-03T06:19:26.391Z",
+        "type": "updated",
+        "text": "Проект обновлён.",
+        "public": false
+      },
+      {
+        "id": "488354fd-60b4-4f12-8daf-eb069fdc2ffb",
+        "created_at": "2026-07-03T06:18:49.890Z",
+        "type": "presentation_uploaded",
+        "text": "Добавлена презентация проекта.",
+        "public": true
+      },
+      {
+        "id": "2a36cc94-d414-4f0d-8f84-6237fe27444d",
+        "created_at": "2026-07-03T05:50:46.229Z",
+        "type": "crm_updated",
+        "text": "Обновлены внутренние CRM-данные проекта.",
+        "public": false
+      },
+      {
+        "id": "21df7c5a-9f81-4656-9f00-60465b922398",
+        "created_at": "2026-07-03T05:50:00.886Z",
+        "type": "crm_updated",
+        "text": "Обновлены внутренние CRM-данные проекта.",
+        "public": false
+      }
+    ],
+    "crm": {
+      "owner": "Образовательные проекты",
+      "priority": "medium",
+      "status": "ready_for_showcase",
+      "notes": "Демонстрационные данные.",
+      "last_contact_at": "",
+      "next_action": "Провести методическую экспертизу.",
+      "show_public": false
+    },
+    "created_at": "2026-04-02T08:00:00.000Z",
+    "updated_at": "2026-07-06T06:13:45.279Z"
+  },
+  {
+    "id": "mammoth-vision-mirny",
+    "title": "Mammoth Vision",
+    "short_description": "Анализ снимков с дронов и фотоловушек для мониторинга природы Якутии.",
+    "logo_url": "",
+    "categories": [
+      "ИИ",
+      "Другое"
+    ],
+    "price": "paid",
+    "link": "",
+    "telegram": "@technopark_yakutia",
+    "contact_email": "Technopark_14@mail.ru",
+    "contact_phone": "+7 (4112) 50-80-98",
+    "presentation_url": "https://example.com/mammoth-vision-deck",
+    "full_description": "Mammoth Vision автоматически обрабатывает большие массивы полевых снимков, распознаёт объекты и формирует карту наблюдений для исследовательских команд.",
+    "for_whom": "B2B и B2G: научные организации, природоохранные службы, добывающие компании и экологические подрядчики.",
+    "problem": "Ручная обработка полевых снимков занимает месяцы и затрудняет оперативную оценку изменений.",
+    "solution": "Компьютерное зрение для классификации снимков, поиска событий и подготовки отчётов.",
+    "advantages": "Пакетная обработка; Карта наблюдений; Контроль качества разметки; Экспорт отчётов; Работа в закрытом контуре",
+    "cta": "Ищем наборы данных и партнёров для отраслевого пилота.",
+    "additional": "Демонстрационная карточка проекта для будущего портфеля Центра инноваций Якутии.",
+    "gallery_urls": [
+      "https://placehold.co/1200x800/b45309/ffffff?text=Mammoth%20Vision+01",
+      "https://placehold.co/1200x800/111827/ffffff?text=Mammoth%20Vision+02",
+      "https://placehold.co/1200x800/1f2937/ffffff?text=Mammoth%20Vision+03"
+    ],
+    "video_url": "",
+    "team": "5 человек",
+    "technologies": "Python, PyTorch, FastAPI, PostGIS, Next.js",
+    "status": "developing",
+    "investment_stage": "seed",
+    "audience_type": "b2b",
+    "audience_types": [
+      "b2b",
+      "b2g"
+    ],
+    "placement_type": "on_premise",
+    "placement_types": [
+      "on_premise"
+    ],
+    "community_statuses": [
+      "Ищу партнерства и коллабы",
+      "Ищу инвестиции"
+    ],
+    "country": "Россия",
+    "city": "Якутск",
+    "team_members": [],
+    "team_open_roles": [
+      "ML Engineer"
+    ],
+    "readiness_items": [
+      "mvp",
+      "pilot",
+      "team",
+      "deck",
+      "unit_economics",
+      "legal"
+    ],
+    "readiness_score": 67,
+    "cooperation_needs": [
+      "pilot",
+      "investment",
+      "tech_partner"
+    ],
+    "cooperation_offer": "Обработка тестового набора снимков и сравнительный отчёт по скорости и точности.",
+    "cooperation_priority": "now",
+    "change_log": [
+      {
+        "id": "44666783-bd87-4f50-90e0-a398bd25c5de",
+        "created_at": "2026-07-03T05:44:20.379Z",
+        "type": "updated",
+        "text": "Проект обновлён.",
+        "public": false
+      }
+    ],
+    "crm": {
+      "owner": "Технологические проекты",
+      "priority": "medium",
+      "status": "ready_for_showcase",
+      "notes": "Демонстрационные данные.",
+      "last_contact_at": "",
+      "next_action": "Подготовить датасет для пилота.",
+      "show_public": true
+    },
+    "created_at": "2026-05-08T11:00:00.000Z",
+    "updated_at": "2026-07-03T05:44:20.379Z"
+  }
+]

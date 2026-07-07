@@ -1,0 +1,520 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import ColorBendsBackground from '@/components/effects/ColorBendsBackground';
+import { Project } from '@/types/project';
+import {
+  crmPriorityLabels,
+  crmStatusLabels,
+  investmentStageLabels,
+} from '@/lib/projectOptions';
+
+export default function AdminPage() {
+  const router = useRouter();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const [search, setSearch] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [crmStatusFilter, setCrmStatusFilter] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState('');
+  const [missingDeckOnly, setMissingDeckOnly] = useState(false);
+  const [missingTeamOnly, setMissingTeamOnly] = useState(false);
+  const [lowReadinessOnly, setLowReadinessOnly] = useState(false);
+
+  async function handleLogout() {
+    await fetch('/api/admin/logout', { method: 'POST' });
+    router.push('/admin/login');
+    router.refresh();
+  }
+
+  useEffect(() => {
+    async function loadProjects() {
+      setLoading(true);
+      setError('');
+
+      try {
+        const res = await fetch('/api/projects?sort=created_at.desc');
+
+        if (!res.ok) {
+          throw new Error('Не удалось загрузить проекты');
+        }
+
+        const data = await res.json();
+        setProjects(data);
+      } catch {
+        setError('Ошибка загрузки админки');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProjects();
+  }, []);
+
+  async function handleDelete(id: string) {
+    const confirmed = confirm('Удалить проект?');
+    if (!confirmed) return;
+
+    const res = await fetch(`/api/projects/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!res.ok) {
+      alert('Ошибка удаления');
+      return;
+    }
+
+    setProjects((prev) => prev.filter((project) => project.id !== id));
+  }
+
+  const filteredProjects = useMemo(() => {
+    return projects.filter((project) => {
+      const q = search.trim().toLowerCase();
+
+      if (
+        q &&
+        !(
+          project.title.toLowerCase().includes(q) ||
+          project.short_description.toLowerCase().includes(q) ||
+          project.city.toLowerCase().includes(q)
+        )
+      ) {
+        return false;
+      }
+
+      if (priorityFilter && project.crm?.priority !== priorityFilter) {
+        return false;
+      }
+
+      if (crmStatusFilter && project.crm?.status !== crmStatusFilter) {
+        return false;
+      }
+
+      if (visibilityFilter === 'public' && project.crm?.show_public === false) {
+        return false;
+      }
+
+      if (visibilityFilter === 'hidden' && project.crm?.show_public !== false) {
+        return false;
+      }
+
+      if (missingDeckOnly && project.presentation_url) {
+        return false;
+      }
+
+      if (
+        missingTeamOnly &&
+        ((project.team_members?.length || 0) > 0 || Boolean(project.team))
+      ) {
+        return false;
+      }
+
+      if (lowReadinessOnly && (project.readiness_score || 0) >= 50) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [
+    projects,
+    search,
+    priorityFilter,
+    crmStatusFilter,
+    visibilityFilter,
+    missingDeckOnly,
+    missingTeamOnly,
+    lowReadinessOnly,
+  ]);
+
+  const stats = useMemo(() => {
+    return {
+      total: projects.length,
+      highPriority: projects.filter((p) => p.crm?.priority === 'high').length,
+      noDeck: projects.filter((p) => !p.presentation_url).length,
+      noTeam: projects.filter((p) => !(p.team_members?.length || p.team)).length,
+      lowReadiness: projects.filter((p) => (p.readiness_score || 0) < 50).length,
+      hidden: projects.filter((p) => p.crm?.show_public === false).length,
+    };
+  }, [projects]);
+
+  return (
+    <main className="relative min-h-screen overflow-hidden px-4 py-6 md:px-8 md:py-10">
+      <ColorBendsBackground />
+
+      <section className="relative z-10 mx-auto max-w-7xl">
+        <header className="mb-8 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="mb-5 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-white/90">
+                Admin / CRM
+              </div>
+
+              <h1 className="text-4xl font-black tracking-tight text-white md:text-6xl">
+                Админ-панель
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/72">
+                Управление проектами, CRM-статусами, готовностью, материалами и
+                внутренними приоритетами.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/admin/new"
+                className="inline-flex items-center justify-center rounded-2xl bg-[#5227FF] px-5 py-3 text-sm font-black text-white shadow-lg shadow-[#5227FF]/15 transition hover:bg-indigo-500"
+              >
+                Добавить проект
+              </Link>
+
+              <Link
+                href="/investors"
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white"
+              >
+                Investor view
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-normal text-white/60 transition hover:bg-white/10 hover:text-white"
+              >
+                Выйти
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <StatCard value={stats.total} label="Всего проектов" />
+            <StatCard value={stats.highPriority} label="High priority" />
+            <StatCard value={stats.noDeck} label="Без презентации" />
+            <StatCard value={stats.noTeam} label="Без команды" />
+            <StatCard value={stats.lowReadiness} label="Низкая готовность" />
+            <StatCard value={stats.hidden} label="Скрытые" />
+          </div>
+        </header>
+
+        <section className="mb-8 rounded-[30px] border border-white/10 bg-black/35 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl">
+          <div className="grid gap-4 lg:grid-cols-[1fr_220px_220px_220px]">
+            <div>
+              <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/45">
+                Поиск
+              </div>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Название, описание, город..."
+                className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
+              />
+            </div>
+
+            <FilterSelect
+              label="Приоритет"
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              options={[
+                { value: 'low', label: 'Низкий' },
+                { value: 'medium', label: 'Средний' },
+                { value: 'high', label: 'Высокий' },
+              ]}
+            />
+
+            <FilterSelect
+              label="CRM статус"
+              value={crmStatusFilter}
+              onChange={setCrmStatusFilter}
+              options={[
+                { value: 'draft', label: 'Черновик' },
+                { value: 'internal_review', label: 'Внутренний просмотр' },
+                { value: 'ready_for_showcase', label: 'Готов к показу' },
+                { value: 'archived', label: 'Архив' },
+              ]}
+            />
+
+            <FilterSelect
+              label="Видимость"
+              value={visibilityFilter}
+              onChange={setVisibilityFilter}
+              options={[
+                { value: 'public', label: 'Публичные' },
+                { value: 'hidden', label: 'Скрытые' },
+              ]}
+            />
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <ToggleChip
+              checked={missingDeckOnly}
+              onChange={setMissingDeckOnly}
+              label="Без презентации"
+            />
+            <ToggleChip
+              checked={missingTeamOnly}
+              onChange={setMissingTeamOnly}
+              label="Без команды"
+            />
+            <ToggleChip
+              checked={lowReadinessOnly}
+              onChange={setLowReadinessOnly}
+              label="Готовность < 50%"
+            />
+          </div>
+        </section>
+
+        {loading && (
+          <div className="rounded-[28px] border border-white/10 bg-black/25 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            Загружаем проекты...
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-[28px] border border-red-400/20 bg-red-500/10 p-10 text-center text-red-100 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black/25 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-left text-white">
+                <thead className="border-b border-white/10 bg-white/[0.04]">
+                  <tr>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Проект</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Стадия</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Готовность</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Deck</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">CRM</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Действия</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredProjects.map((project) => (
+                    <tr
+                      key={project.id}
+                      className="border-b border-white/10 align-top last:border-b-0"
+                    >
+                      <td className="px-5 py-5">
+                        <div className="flex gap-4">
+                          {project.logo_url ? (
+                            <Image
+                              src={project.logo_url}
+                              alt={project.title}
+                              width={56}
+                              height={56}
+                              unoptimized
+                              className="h-14 w-14 rounded-2xl object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-lg font-black text-white">
+                              {project.title?.[0] || '?'}
+                            </div>
+                          )}
+
+                          <div>
+                            <div className="text-lg font-black text-white">
+                              {project.title}
+                            </div>
+                            <div className="mt-1 max-w-[320px] text-sm text-white/55">
+                              {project.short_description}
+                            </div>
+                            <div className="mt-2 text-xs text-white/40">
+                              {project.city || 'Город не указан'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-5">
+                        <div className="rounded-full border border-[#5227FF]/30 bg-[#5227FF]/15 px-3 py-1 text-xs font-black text-violet-100">
+                          {investmentStageLabels[project.investment_stage]}
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-5">
+                        <div className="min-w-[120px]">
+                          <div className="mb-2 text-sm font-black text-white">
+                            {project.readiness_score || 0}%
+                          </div>
+                          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-[#5227FF] via-[#8B7CFF] to-emerald-300"
+                              style={{ width: `${project.readiness_score || 0}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-5">
+                        <span
+                          className={
+                            project.presentation_url
+                              ? 'rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
+                              : 'rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/60'
+                          }
+                        >
+                          {project.presentation_url ? 'Есть' : 'Нет'}
+                        </span>
+                      </td>
+
+                      <td className="px-5 py-5">
+                        <div className="space-y-2">
+                          <div
+  className={
+    project.crm?.priority === 'high'
+      ? 'rounded-full border border-red-300/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-100'
+      : project.crm?.priority === 'medium'
+        ? 'rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
+        : 'rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/75'
+  }
+>
+  {crmPriorityLabels[project.crm?.priority || 'medium']}
+</div>
+
+                          <div className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/75">
+                            {crmStatusLabels[project.crm?.status || 'draft']}
+                          </div>
+
+                          <div
+                            className={
+                              project.crm?.show_public === false
+                                ? 'rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
+                                : 'rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
+                            }
+                          >
+                            {project.crm?.show_public === false ? 'Скрыт' : 'Публичный'}
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-5">
+                        <div className="flex flex-wrap gap-2">
+                          <Link
+                            href={`/projects/${project.id}`}
+                            className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/20"
+                          >
+                            Открыть
+                          </Link>
+
+                          <Link
+                            href={`/admin/edit/${project.id}`}
+                            className="rounded-xl bg-[#5227FF] px-4 py-2 text-sm font-black text-white transition hover:bg-indigo-500"
+                          >
+                            Редактировать
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(project.id)}
+                            className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white transition hover:bg-red-400"
+                          >
+                            Удалить
+                          </button>
+                        </div>
+
+                        {project.crm?.owner && (
+                          <div className="mt-3 text-xs text-white/45">
+                            Ответственный: {project.crm.owner}
+                          </div>
+                        )}
+
+                        {project.crm?.next_action && (
+                          <div className="mt-1 text-xs text-white/45">
+                            Next: {project.crm.next_action}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {!loading && !error && filteredProjects.length === 0 && (
+              <div className="p-10 text-center text-white/60">
+                Ничего не найдено по текущим фильтрам.
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div>
+      <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/45">
+        {label}
+      </div>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
+      >
+        <option value="">Все</option>
+        {options.map((item) => (
+          <option key={item.value} value={item.value}>
+            {item.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function ToggleChip({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={
+        checked
+          ? 'rounded-full border border-[#5227FF]/40 bg-[#5227FF]/25 px-4 py-2 text-sm font-black text-white'
+          : 'rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
+      }
+    >
+      {label}
+    </button>
+  );
+}
+
+function StatCard({
+  value,
+  label,
+}: {
+  value: string | number;
+  label: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+      <div className="text-2xl font-black text-white">{value}</div>
+      <div className="mt-1 text-sm text-white/55">{label}</div>
+    </div>
+  );
+}
