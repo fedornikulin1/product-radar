@@ -189,6 +189,28 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const COUNTRY_SUGGESTIONS = [
+  'Россия',
+] as const;
+
+const CITY_SUGGESTIONS = [
+  'Якутск',
+  'Мирный',
+  'Нерюнгри',
+  'Алдан',
+  'Ленск',
+  'Олёкминск',
+  'Вилюйск',
+  'Покровск',
+  'Намцы',
+  'Верхоянск',
+  'Тикси',
+  'Усть-Нера',
+  'Сунтар',
+  'Нюрба',
+  'Жатай',
+] as const;
+
 type Props = {
   project?: Project;
   mode?: 'create' | 'edit';
@@ -887,6 +909,12 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           )}
 
           <div>
+            <FieldLabel
+              label="Файл презентации"
+              hint="Можно загрузить файл вместо внешней ссылки."
+              optional
+            />
+
             <input
               id="presentation-upload"
               type="file"
@@ -1003,7 +1031,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
         <Textarea
           label="Проблема"
-          hint="Обязательное поле."
+          hint="Какую боль клиента закрывает проект."
           required
           error={errors.problem?.message}
           {...register('problem')}
@@ -1013,7 +1041,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       <div className="grid gap-5 md:grid-cols-2">
         <Textarea
           label="Решение"
-          hint="Обязательное поле."
+          hint="Кратко опиши, как продукт решает проблему."
           required
           error={errors.solution?.message}
           {...register('solution')}
@@ -1021,7 +1049,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
         <Textarea
           label="Преимущества"
-          hint="Обязательное поле."
+          hint="Чем проект сильнее аналогов или текущих решений."
           required
           error={errors.advantages?.message}
           {...register('advantages')}
@@ -1030,7 +1058,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
       <Textarea
         label="Запрос к инвесторам / партнёрам"
-        hint="Обязательное поле."
+        hint="Что проект хочет получить: инвестиции, пилот, партнёра или экспертизу."
         required
         error={errors.cta?.message}
         {...register('cta')}
@@ -1038,7 +1066,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
       <Textarea
         label="Дополнительно"
-        hint="Необязательное поле."
+        hint="Любая важная информация, которая не вошла в основные поля."
         optional
         error={errors.additional?.message}
         {...register('additional')}
@@ -1338,6 +1366,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
             <Input
               label="Последний контакт"
+              hint="Дата последней связи с командой проекта."
               optional
               type="date"
               {...register('crm.last_contact_at')}
@@ -1351,6 +1380,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
               render={({ field }) => (
                 <Select
                   label="Внутренний приоритет"
+                  hint="Помогает сортировать проекты внутри CRM."
                   optional
                   value={field.value}
                   onChange={field.onChange}
@@ -1370,6 +1400,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
               render={({ field }) => (
                 <Select
                   label="CRM статус"
+                  hint="Готов к показу — проект появится публично."
                   optional
                   value={field.value}
                   onChange={field.onChange}
@@ -1393,6 +1424,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
           <Textarea
             label="Внутренняя заметка"
+            hint="Комментарий только для внутренней работы."
             optional
             {...register('crm.notes')}
           />
@@ -1403,20 +1435,34 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       <div className="grid gap-5 md:grid-cols-2">
         <Input
           label="Страна"
-          hint="Необязательное поле."
+          hint="Начните вводить страну или выберите из списка."
           optional
+          list="country-suggestions"
           error={errors.country?.message}
           {...register('country')}
         />
 
         <Input
           label="Город"
-          hint="Необязательное поле."
+          hint="Начните вводить город или населённый пункт."
           optional
+          list="city-suggestions"
           error={errors.city?.message}
           {...register('city')}
         />
       </div>
+
+      <datalist id="country-suggestions">
+        {COUNTRY_SUGGESTIONS.map((country) => (
+          <option key={country} value={country} />
+        ))}
+      </datalist>
+
+      <datalist id="city-suggestions">
+        {CITY_SUGGESTIONS.map((city) => (
+          <option key={city} value={city} />
+        ))}
+      </datalist>
 
       <div className="flex flex-wrap gap-3 pt-4">
         <button
