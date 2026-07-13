@@ -27,6 +27,7 @@ export function calculateProjectCompleteness(project: CompletenessProject) {
     hasText(project.technologies),
     Boolean(project.status),
     Boolean(project.investment_stage),
+    hasText(project.investment_amount),
     hasItems(project.audience_types),
     hasItems(project.placement_types),
     hasText(project.country),

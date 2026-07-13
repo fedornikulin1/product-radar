@@ -66,10 +66,8 @@ export type ProjectChange = {
 };
 
 export type CRMStatus =
-  | 'draft'
   | 'internal_review'
-  | 'ready_for_showcase'
-  | 'archived';
+  | 'ready_for_showcase';
 
 export type CRMInternalPriority = 'low' | 'medium' | 'high';
 
@@ -115,6 +113,7 @@ export type Project = {
 
   status: ProjectStatus;
   investment_stage: InvestmentStage;
+  investment_amount?: string;
 
   /**
    * legacy поле для старых записей
@@ -190,6 +189,7 @@ export type ProjectFormData = {
 
   status: ProjectStatus;
   investment_stage: InvestmentStage;
+  investment_amount?: string;
 
   audience_types: AudienceType[];
   placement_type?: PlacementType;

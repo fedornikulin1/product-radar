@@ -290,10 +290,8 @@ export default function AdminPage() {
               value={crmStatusFilter}
               onChange={setCrmStatusFilter}
               options={[
-                { value: 'draft', label: 'Черновик' },
                 { value: 'internal_review', label: 'Внутренний просмотр' },
                 { value: 'ready_for_showcase', label: 'Готов к показу' },
-                { value: 'archived', label: 'Архив' },
               ]}
             />
 
@@ -438,7 +436,7 @@ export default function AdminPage() {
 </div>
 
                           <div className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-black text-white/75">
-                            {crmStatusLabels[project.crm?.status || 'draft']}
+                            {crmStatusLabels[project.crm?.status || 'internal_review']}
                           </div>
 
                           <div

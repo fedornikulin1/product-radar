@@ -66,17 +66,15 @@ type DealFieldDefinition = {
 };
 
 const crmStageMap: Record<CRMStatus, string> = {
-  draft: 'NEW',
   internal_review: 'EXECUTING',
   ready_for_showcase: 'READY_TO_PUBLISH',
-  archived: 'APOLOGY',
 };
 
 const stageCrmMap: Record<string, CRMStatus> = {
-  NEW: 'draft',
+  NEW: 'internal_review',
   EXECUTING: 'internal_review',
   READY_TO_PUBLISH: 'ready_for_showcase',
-  APOLOGY: 'archived',
+  APOLOGY: 'internal_review',
 };
 
 const fieldPrefix = 'UF_CRM_PR_';
@@ -100,6 +98,7 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
     { value: 'expansion', label: 'Expansion' },
     { value: 'exit', label: 'Exit' },
   ] },
+  { code: 'INVEST_AMOUNT', label: 'Запрашиваемые инвестиции', type: 'string', help: 'Какая сумма нужна проекту от инвесторов. Например: 15 млн ₽.' },
   { code: 'AUDIENCE_TYPES', label: 'Тип проекта / аудитория', type: 'enumeration', help: 'Можно выбрать несколько типов аудитории.', multiple: true, list: [
     { value: 'b2b', label: 'B2B' },
     { value: 'b2c', label: 'B2C' },
@@ -137,11 +136,6 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'READINESS', label: 'Готовность, %', type: 'integer', help: 'Процент готовности проекта от 0 до 100.' },
   { code: 'COOP_NEEDS', label: 'Запросы сотрудничества', type: 'string', help: 'Какая помощь нужна проекту. Можно перечислить через запятую.' },
   { code: 'COOP_OFFER', label: 'Что предлагает проект', type: 'string', help: 'Что проект готов предложить партнёрам или инвесторам.' },
-  { code: 'COOP_PRIORITY', label: 'Приоритет сотрудничества', type: 'enumeration', help: 'Насколько срочно проект ищет сотрудничество.', list: [
-    { value: 'now', label: 'Сейчас' },
-    { value: 'soon', label: 'Скоро' },
-    { value: 'later', label: 'Позже' },
-  ] },
   { code: 'CRM_OWNER', label: 'Ответственный внутри CRM', type: 'string', help: 'Кто ведёт проект внутри команды.' },
   { code: 'CRM_PRIORITY', label: 'Внутренний приоритет', type: 'enumeration', help: 'Внутренний приоритет обработки проекта.', list: [
     { value: 'low', label: 'Низкий' },
@@ -324,6 +318,7 @@ function getDealCustomFields(
     [getFieldName('CATEGORIES')]: project.categories.join(', '),
     [getFieldName('PROJECT_STATUS')]: toBitrixFieldValue('PROJECT_STATUS', project.status, fieldMap),
     [getFieldName('INVEST_STAGE')]: toBitrixFieldValue('INVEST_STAGE', project.investment_stage, fieldMap),
+    [getFieldName('INVEST_AMOUNT')]: project.investment_amount || '',
     [getFieldName('AUDIENCE_TYPES')]: toBitrixFieldValue('AUDIENCE_TYPES', project.audience_types || [], fieldMap),
     [getFieldName('PLACEMENT_TYPES')]: toBitrixFieldValue('PLACEMENT_TYPES', project.placement_types || [], fieldMap),
     [getFieldName('PRICE')]: toBitrixFieldValue('PRICE', project.price, fieldMap),
@@ -349,10 +344,9 @@ function getDealCustomFields(
     [getFieldName('READINESS')]: project.readiness_score || 0,
     [getFieldName('COOP_NEEDS')]: (project.cooperation_needs || []).join(', '),
     [getFieldName('COOP_OFFER')]: project.cooperation_offer || '',
-    [getFieldName('COOP_PRIORITY')]: toBitrixFieldValue('COOP_PRIORITY', project.cooperation_priority || 'later', fieldMap),
     [getFieldName('CRM_OWNER')]: project.crm?.owner || '',
     [getFieldName('CRM_PRIORITY')]: toBitrixFieldValue('CRM_PRIORITY', project.crm?.priority || 'medium', fieldMap),
-    [getFieldName('CRM_STATUS')]: toBitrixFieldValue('CRM_STATUS', project.crm?.status || 'draft', fieldMap),
+    [getFieldName('CRM_STATUS')]: toBitrixFieldValue('CRM_STATUS', project.crm?.status || 'internal_review', fieldMap),
     [getFieldName('CRM_NOTES')]: project.crm?.notes || '',
     [getFieldName('CRM_LAST_CONTACT')]: project.crm?.last_contact_at || '',
     [getFieldName('CRM_NEXT_ACTION')]: project.crm?.next_action || '',
@@ -367,7 +361,7 @@ function getDealFields(
   const config = getConfig();
   if (!config) return null;
 
-  const crmStatus = project.crm?.status || 'draft';
+  const crmStatus = project.crm?.status || 'internal_review';
   const stageCode = crmStageMap[crmStatus];
 
   return {
@@ -549,7 +543,7 @@ export async function syncProjectToBitrix(
 
 function parseStageId(stageId: string): CRMStatus {
   const code = stageId.includes(':') ? stageId.split(':').pop() || '' : stageId;
-  return stageCrmMap[code] || 'draft';
+  return stageCrmMap[code] || 'internal_review';
 }
 
 function normalizeProjectStatus(value: string): ProjectStatus {
@@ -643,9 +637,9 @@ function normalizeCrmPriority(value: string): CRMInternalPriority {
 }
 
 function normalizeCrmStatus(value: string): CRMStatus {
-  return ['draft', 'internal_review', 'ready_for_showcase', 'archived'].includes(value)
+  return ['internal_review', 'ready_for_showcase'].includes(value)
     ? (value as CRMStatus)
-    : 'draft';
+    : 'internal_review';
 }
 
 export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
@@ -694,7 +688,6 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
     const link = getDealString(deal, 'LINK', fieldMap) || firstMultiValue(company?.WEB);
     const dealId = getNumber(deal.ID);
     const crmStatus = getDealString(deal, 'CRM_STATUS', fieldMap);
-    const cooperationPriority = getDealString(deal, 'COOP_PRIORITY', fieldMap);
 
     result.push({
       title,
@@ -719,6 +712,7 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       technologies: getDealString(deal, 'TECHNOLOGIES', fieldMap),
       status: normalizeProjectStatus(getDealString(deal, 'PROJECT_STATUS', fieldMap)),
       investment_stage: normalizeInvestmentStage(getDealString(deal, 'INVEST_STAGE', fieldMap)),
+      investment_amount: getDealString(deal, 'INVEST_AMOUNT', fieldMap),
       audience_types: normalizeAudienceTypes(getDealString(deal, 'AUDIENCE_TYPES', fieldMap)),
       placement_types: normalizePlacementTypes(getDealString(deal, 'PLACEMENT_TYPES', fieldMap)),
       community_statuses: splitList(getDealString(deal, 'COMMUNITY', fieldMap)),
@@ -730,10 +724,6 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       readiness_score: getNumber(deal[getFieldName('READINESS')]),
       cooperation_needs: splitList(getDealString(deal, 'COOP_NEEDS', fieldMap)) as ProjectFormData['cooperation_needs'],
       cooperation_offer: getDealString(deal, 'COOP_OFFER', fieldMap),
-      cooperation_priority:
-        cooperationPriority === 'now' || cooperationPriority === 'soon'
-          ? cooperationPriority as ProjectFormData['cooperation_priority']
-          : 'later',
       crm: {
         owner: getDealString(deal, 'CRM_OWNER', fieldMap),
         priority: normalizeCrmPriority(getDealString(deal, 'CRM_PRIORITY', fieldMap)),

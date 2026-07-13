@@ -12,7 +12,6 @@ import {
   priceLabels,
   statusLabels,
 } from '@/lib/projectOptions';
-import GlareHover from '@/components/effects/GlareHover';
 
 function getAudienceTypes(project: Project) {
   if (project.audience_types?.length) {
@@ -47,23 +46,11 @@ export default function ProjectCard({
   const cooperationNeeds = (project.cooperation_needs || []).slice(0, 2);
 
   return (
-    <GlareHover
-      width="100%"
-      height="100%"
-      background="rgba(32,32,44,0.52)"
-      borderRadius="28px"
-      borderColor="rgba(255,255,255,0.18)"
-      glareColor="#ffffff"
-      glareOpacity={0.22}
-      glareAngle={-30}
-      glareSize={320}
-      transitionDuration={900}
-      className="project-card-shell"
-    >
+    <div className="h-full rounded-[28px] border border-white/15 bg-slate-950/58 shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-300 hover:border-cyan-200/25 hover:bg-slate-950/66">
       <Link
         href={`/projects/${project.id}`}
         scroll={true}
-        className="relative z-[3] flex h-full min-h-[430px] flex-col rounded-[28px] bg-black/20 p-6 text-white backdrop-blur-xl"
+        className="relative z-[3] flex h-full min-h-[430px] flex-col rounded-[28px] p-6 text-white"
       >
         <div className="flex min-h-[132px] gap-4">
           {project.logo_url ? (
@@ -175,13 +162,13 @@ export default function ProjectCard({
               {statusLabels[project.status]}
             </span>
 
-            <span className="text-sm font-black text-white/80">
-              {priceLabels[project.price]}
+            <span className="max-w-[58%] truncate text-right text-sm font-black text-white/80">
+              {project.investment_amount || priceLabels[project.price]}
             </span>
           </div>
         </div>
       </Link>
-    </GlareHover>
+    </div>
   );
 }
 

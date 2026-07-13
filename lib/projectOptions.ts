@@ -122,10 +122,8 @@ export const CRM_PRIORITY_OPTIONS: CRMInternalPriority[] = [
 ];
 
 export const CRM_STATUS_OPTIONS: CRMStatus[] = [
-  'draft',
   'internal_review',
   'ready_for_showcase',
-  'archived',
 ];
 
 export const TEAM_ROLE_SUGGESTIONS = [
@@ -226,8 +224,6 @@ export const crmPriorityLabels: Record<CRMInternalPriority, string> = {
 };
 
 export const crmStatusLabels: Record<CRMStatus, string> = {
-  draft: 'Черновик',
   internal_review: 'Внутренний просмотр',
   ready_for_showcase: 'Готов к показу',
-  archived: 'Архив',
 };

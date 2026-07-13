@@ -24,7 +24,6 @@ import {
   AUDIENCE_TYPE_OPTIONS,
   COMMUNITY_STATUSES,
   COOPERATION_NEED_OPTIONS,
-  COOPERATION_PRIORITY_OPTIONS,
   CRM_PRIORITY_OPTIONS,
   CRM_STATUS_OPTIONS,
   INVESTMENT_STAGE_OPTIONS,
@@ -36,7 +35,6 @@ import {
   TEAM_ROLE_SUGGESTIONS,
   audienceTypeLabels,
   cooperationNeedLabels,
-  cooperationPriorityLabels,
   crmPriorityLabels,
   crmStatusLabels,
   investmentStageLabels,
@@ -64,8 +62,8 @@ const crmSchema = z.object({
   owner: z.string().default(''),
   priority: z.enum(['low', 'medium', 'high']).default('medium'),
   status: z
-    .enum(['draft', 'internal_review', 'ready_for_showcase', 'archived'])
-    .default('draft'),
+    .enum(['internal_review', 'ready_for_showcase'])
+    .default('internal_review'),
   notes: z.string().default(''),
   last_contact_at: z.string().default(''),
   next_action: z.string().default(''),
@@ -131,6 +129,7 @@ const schema = z.object({
     'expansion',
     'exit',
   ]),
+  investment_amount: z.string().optional().default(''),
   audience_types: z
     .array(z.enum(['b2b', 'b2c', 'b2g']))
     .min(1, 'Выберите хотя бы 1 тип проекта'),
@@ -177,12 +176,11 @@ const schema = z.object({
     )
     .default([]),
   cooperation_offer: z.string().optional().default(''),
-  cooperation_priority: z.enum(['now', 'soon', 'later']).default('later'),
 
   crm: crmSchema.default({
     owner: '',
     priority: 'medium',
-    status: 'draft',
+    status: 'internal_review',
     notes: '',
     last_contact_at: '',
     next_action: '',
@@ -224,6 +222,7 @@ const emptyValues: FormValues = {
 
   status: 'developing',
   investment_stage: 'pre_seed',
+  investment_amount: '',
   audience_types: ['b2b'],
   placement_types: ['saas'],
 
@@ -240,12 +239,11 @@ const emptyValues: FormValues = {
 
   cooperation_needs: [],
   cooperation_offer: '',
-  cooperation_priority: 'later',
 
   crm: {
     owner: '',
     priority: 'medium',
-    status: 'draft',
+    status: 'internal_review',
     notes: '',
     last_contact_at: '',
     next_action: '',
@@ -318,6 +316,7 @@ function mapProjectToFormValues(project?: Project): FormValues {
 
     status: project.status || 'developing',
     investment_stage: project.investment_stage || 'pre_seed',
+    investment_amount: project.investment_amount || '',
     audience_types: normalizeProjectAudienceTypes(project),
     placement_types: project.placement_types?.length
       ? project.placement_types
@@ -336,12 +335,14 @@ function mapProjectToFormValues(project?: Project): FormValues {
 
     cooperation_needs: project.cooperation_needs || [],
     cooperation_offer: project.cooperation_offer || '',
-    cooperation_priority: project.cooperation_priority || 'later',
 
     crm: {
       owner: project.crm?.owner || '',
       priority: project.crm?.priority || 'medium',
-      status: project.crm?.status || 'draft',
+      status:
+        project.crm?.status === 'ready_for_showcase'
+          ? 'ready_for_showcase'
+          : 'internal_review',
       notes: project.crm?.notes || '',
       last_contact_at: project.crm?.last_contact_at || '',
       next_action: project.crm?.next_action || '',
@@ -357,6 +358,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
   const [uploadingPresentation, setUploadingPresentation] = useState(false);
   const [presentationFileName, setPresentationFileName] = useState('');
   const [categoryOptions, setCategoryOptions] = useState<string[]>([...PROJECT_CATEGORIES]);
+  const [showCategoryInput, setShowCategoryInput] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
   const initialValues = useMemo<FormValues>(
@@ -558,11 +560,13 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       readiness_score: calculateProjectCompleteness(data),
       cooperation_needs: Array.from(new Set(data.cooperation_needs || [])),
       cooperation_offer: data.cooperation_offer || '',
-      cooperation_priority: data.cooperation_priority || 'later',
       crm: {
         owner: data.crm?.owner || '',
         priority: data.crm?.priority || 'medium',
-        status: data.crm?.status || 'draft',
+        status:
+          data.crm?.status === 'ready_for_showcase'
+            ? 'ready_for_showcase'
+            : 'internal_review',
         notes: data.crm?.notes || '',
         last_contact_at: data.crm?.last_contact_at || '',
         next_action: data.crm?.next_action || '',
@@ -654,14 +658,13 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('short_description')}
       />
 
-      <div className="grid items-start gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid items-end gap-5 md:grid-cols-2 xl:grid-cols-4">
         <Controller
           control={control}
           name="status"
           render={({ field }) => (
             <Select
               label="Статус проекта"
-              hint="Показывается на карточке проекта: в разработке, завершён или на паузе."
               required
               error={errors.status?.message}
               value={field.value}
@@ -682,7 +685,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           render={({ field }) => (
             <Select
               label="Стадия инвестирования"
-              hint="Обязательное поле."
               required
               error={errors.investment_stage?.message}
               value={field.value}
@@ -704,7 +706,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             <div>
               <FieldLabel
                 label="Тип размещения"
-                hint="Можно выбрать один или оба варианта."
                 required
               />
 
@@ -750,7 +751,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           render={({ field }) => (
             <Select
               label="Модель оплаты"
-              hint="Обязательное поле."
               required
               error={errors.price?.message}
               value={field.value}
@@ -765,6 +765,13 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           )}
         />
       </div>
+
+      <Input
+        label="Запрашиваемые инвестиции"
+        hint="Например: 15 млн ₽, 300 тыс. $, сумма обсуждается."
+        optional
+        {...register('investment_amount')}
+      />
 
       <Input
         label="Сайт проекта"
@@ -963,6 +970,9 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                   : [...currentOptions, option],
               )
             }
+            showCustomInput={showCategoryInput}
+            onToggleCustomInput={() => setShowCategoryInput((value) => !value)}
+            onAfterAddOption={() => setShowCategoryInput(false)}
             error={errors.categories?.message}
             searchable
             allowCustom
@@ -1289,26 +1299,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           error={errors.cooperation_offer?.message}
           {...register('cooperation_offer')}
         />
-
-        <Controller
-          control={control}
-          name="cooperation_priority"
-          render={({ field }) => (
-            <Select
-              label="Срочность сотрудничества"
-              hint="Необязательное поле."
-              optional
-              value={field.value}
-              onChange={field.onChange}
-            >
-              {COOPERATION_PRIORITY_OPTIONS.map((item) => (
-                <option key={item} value={item}>
-                  {cooperationPriorityLabels[item]}
-                </option>
-              ))}
-            </Select>
-          )}
-        />
       </section>
 
       <Controller
@@ -1333,78 +1323,76 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           optional
         />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            label="Ответственный"
-            hint="Кто внутри компании ведёт проект."
-            optional
-            {...register('crm.owner')}
-          />
+        <div className="mt-5 space-y-5">
+          <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              label="Ответственный"
+              hint="Кто внутри компании ведёт проект."
+              optional
+              {...register('crm.owner')}
+            />
+
+            <Input
+              label="Последний контакт"
+              optional
+              type="date"
+              {...register('crm.last_contact_at')}
+            />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <Controller
+              control={control}
+              name="crm.priority"
+              render={({ field }) => (
+                <Select
+                  label="Внутренний приоритет"
+                  optional
+                  value={field.value}
+                  onChange={field.onChange}
+                >
+                  {CRM_PRIORITY_OPTIONS.map((item) => (
+                    <option key={item} value={item}>
+                      {crmPriorityLabels[item]}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="crm.status"
+              render={({ field }) => (
+                <Select
+                  label="CRM статус"
+                  optional
+                  value={field.value}
+                  onChange={field.onChange}
+                >
+                  {CRM_STATUS_OPTIONS.map((item) => (
+                    <option key={item} value={item}>
+                      {crmStatusLabels[item]}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            />
+          </div>
 
           <Input
-            label="Последний контакт"
-            hint="Необязательное поле."
+            label="Следующее действие"
+            hint="Например: обновить презентацию, связаться с инвестором, подготовить пилот."
             optional
-            type="date"
-            {...register('crm.last_contact_at')}
+            {...register('crm.next_action')}
+          />
+
+          <Textarea
+            label="Внутренняя заметка"
+            optional
+            {...register('crm.notes')}
           />
         </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <Controller
-            control={control}
-            name="crm.priority"
-            render={({ field }) => (
-              <Select
-                label="Внутренний приоритет"
-                hint="Необязательное поле."
-                optional
-                value={field.value}
-                onChange={field.onChange}
-              >
-                {CRM_PRIORITY_OPTIONS.map((item) => (
-                  <option key={item} value={item}>
-                    {crmPriorityLabels[item]}
-                  </option>
-                ))}
-              </Select>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="crm.status"
-            render={({ field }) => (
-              <Select
-                label="CRM статус"
-                hint="Необязательное поле."
-                optional
-                value={field.value}
-                onChange={field.onChange}
-              >
-                {CRM_STATUS_OPTIONS.map((item) => (
-                  <option key={item} value={item}>
-                    {crmStatusLabels[item]}
-                  </option>
-                ))}
-              </Select>
-            )}
-          />
-        </div>
-
-        <Input
-          label="Следующее действие"
-          hint="Например: обновить презентацию, связаться с инвестором, подготовить пилот."
-          optional
-          {...register('crm.next_action')}
-        />
-
-        <Textarea
-          label="Внутренняя заметка"
-          hint="Необязательное поле."
-          optional
-          {...register('crm.notes')}
-        />
 
       </section>
 
@@ -1477,6 +1465,10 @@ function FieldLabel({
   required?: boolean;
   optional?: boolean;
 }) {
+  const displayHint =
+    hint?.trim().replace(/^(Обязательное|Необязательное)\s+поле\.?\s*/i, '') ||
+    '';
+
   return (
     <div className="mb-2">
       <div className="flex flex-wrap items-center gap-2">
@@ -1495,8 +1487,8 @@ function FieldLabel({
         )}
       </div>
 
-      {hint && (
-        <p className="mt-1 text-xs leading-relaxed text-white/45">{hint}</p>
+      {displayHint && (
+        <p className="mt-1 text-xs leading-relaxed text-white/45">{displayHint}</p>
       )}
     </div>
   );
@@ -1646,6 +1638,9 @@ function CheckboxGroup({
   searchable,
   allowCustom,
   onAddOption,
+  showCustomInput,
+  onToggleCustomInput,
+  onAfterAddOption,
 }: {
   label: string;
   options: readonly string[];
@@ -1660,6 +1655,9 @@ function CheckboxGroup({
   searchable?: boolean;
   allowCustom?: boolean;
   onAddOption?: (option: string) => void;
+  showCustomInput?: boolean;
+  onToggleCustomInput?: () => void;
+  onAfterAddOption?: () => void;
 }) {
   const [search, setSearch] = useState('');
   const [customValue, setCustomValue] = useState('');
@@ -1701,6 +1699,7 @@ function CheckboxGroup({
     onChange([...value, option]);
     setCustomValue('');
     setSearch('');
+    onAfterAddOption?.();
   }
 
   return (
@@ -1711,12 +1710,24 @@ function CheckboxGroup({
           : 'border-white/10 bg-black/35'
       }`}
     >
-      <FieldLabel
-        label={label}
-        hint={hint}
-        required={required}
-        optional={optional}
-      />
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <FieldLabel
+          label={label}
+          hint={hint}
+          required={required}
+          optional={optional}
+        />
+
+        {allowCustom && (
+          <button
+            type="button"
+            onClick={onToggleCustomInput}
+            className="rounded-2xl border border-cyan-200/20 bg-cyan-300/10 px-4 py-2 text-sm font-bold text-cyan-50 transition hover:bg-cyan-300/20"
+          >
+            {showCustomInput ? 'Скрыть' : 'Добавить'}
+          </button>
+        )}
+      </div>
 
       {searchable && (
         <input
@@ -1727,7 +1738,7 @@ function CheckboxGroup({
         />
       )}
 
-      {allowCustom && (
+      {allowCustom && showCustomInput && (
         <div className="mb-3 grid gap-2 sm:grid-cols-[1fr_auto]">
           <input
             value={customValue}

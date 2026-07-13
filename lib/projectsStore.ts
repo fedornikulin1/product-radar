@@ -78,7 +78,7 @@ function normalizeCRM(crm?: ProjectCRM): ProjectCRM {
   return {
     owner: crm?.owner || '',
     priority: crm?.priority || 'medium',
-    status: crm?.status || 'draft',
+    status: crm?.status === 'ready_for_showcase' ? 'ready_for_showcase' : 'internal_review',
     notes: crm?.notes || '',
     last_contact_at: crm?.last_contact_at || '',
     next_action: crm?.next_action || '',
@@ -152,6 +152,7 @@ function normalizeProject(project: Partial<Project>): Project {
 
     status: project.status || 'developing',
     investment_stage: project.investment_stage || 'pre_seed',
+    investment_amount: project.investment_amount || '',
 
     audience_type: audienceTypes[0],
     audience_types: audienceTypes,
@@ -254,6 +255,7 @@ function formDataToProjectData(
     audience_types: audienceTypes,
     placement_type: placementTypes[0],
     placement_types: placementTypes,
+    investment_amount: data.investment_amount || '',
     team_members: normalizeTeamMembers(data.team_members),
     team_open_roles: Array.isArray(data.team_open_roles)
       ? data.team_open_roles.filter(Boolean)

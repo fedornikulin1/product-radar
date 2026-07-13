@@ -12,7 +12,6 @@ import { Project, AudienceType } from '@/types/project';
 import {
   audienceTypeLabels,
   cooperationNeedLabels,
-  cooperationPriorityLabels,
   getPlacementTypes,
   investmentStageDescriptions,
   investmentStageLabels,
@@ -406,6 +405,11 @@ function SidebarBlock({
           />
 
           <SideInfoLine
+            label="Нужно инвестиций"
+            value={project.investment_amount || 'Сумма уточняется'}
+          />
+
+          <SideInfoLine
             label="Тип размещения"
             value={
               placementTypes
@@ -561,15 +565,6 @@ function CooperationSection({ project }: { project: Project }) {
           ) : (
             <span className="text-sm text-white/45">Запросы не указаны.</span>
           )}
-        </div>
-
-        <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
-          <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
-            Срочность
-          </div>
-          <div className="mt-2 text-sm text-white/75">
-            {cooperationPriorityLabels[project.cooperation_priority || 'later']}
-          </div>
         </div>
 
         <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">

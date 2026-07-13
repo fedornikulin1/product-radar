@@ -8,16 +8,17 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #070711;
+  background: #061323;
   color: #f8fafc;
 }
 
 body {
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 15% 12%, rgba(45, 179, 214, 0.22), transparent 30%),
-    radial-gradient(circle at 82% 4%, rgba(58, 206, 139, 0.16), transparent 28%),
-    linear-gradient(135deg, #050812 0%, #071421 42%, #081017 100%);
+    radial-gradient(circle at 12% 10%, rgba(63, 198, 232, 0.28), transparent 30%),
+    radial-gradient(circle at 88% 4%, rgba(31, 135, 214, 0.26), transparent 32%),
+    radial-gradient(circle at 78% 72%, rgba(40, 213, 183, 0.14), transparent 34%),
+    linear-gradient(135deg, #04101f 0%, #082746 48%, #061827 100%);
 }
 
 a {
@@ -58,7 +59,7 @@ button:disabled {
   z-index: 0;
   overflow: hidden;
   background:
-    linear-gradient(135deg, #050812 0%, #071421 46%, #081017 100%);
+    linear-gradient(135deg, #04101f 0%, #082746 48%, #061827 100%);
   pointer-events: none;
 }
 
@@ -66,10 +67,10 @@ button:disabled {
   position: absolute;
   inset: -10%;
   background:
-    radial-gradient(circle at 18% 16%, rgba(65, 196, 225, 0.26), transparent 28%),
-    radial-gradient(circle at 80% 8%, rgba(45, 214, 145, 0.18), transparent 26%),
-    radial-gradient(circle at 65% 72%, rgba(82, 39, 255, 0.16), transparent 34%),
-    linear-gradient(135deg, rgba(6, 18, 31, 0.96), rgba(8, 14, 22, 0.98));
+    radial-gradient(circle at 16% 16%, rgba(72, 203, 235, 0.34), transparent 30%),
+    radial-gradient(circle at 78% 10%, rgba(37, 126, 207, 0.34), transparent 34%),
+    radial-gradient(circle at 70% 76%, rgba(35, 211, 184, 0.2), transparent 36%),
+    linear-gradient(135deg, rgba(3, 18, 34, 0.98), rgba(5, 35, 58, 0.96));
   transform:
     translate3d(
       calc(var(--mouse-x) * -46px),
@@ -86,8 +87,9 @@ button:disabled {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(87, 204, 204, 0.08), transparent 36%),
-    linear-gradient(300deg, rgba(57, 196, 125, 0.08), transparent 42%),
+    linear-gradient(120deg, rgba(92, 205, 238, 0.13), transparent 36%),
+    linear-gradient(300deg, rgba(30, 132, 212, 0.16), transparent 44%),
+    linear-gradient(40deg, transparent 18%, rgba(52, 211, 185, 0.08) 48%, transparent 72%),
     linear-gradient(
       180deg,
       rgba(5, 8, 18, 0.02) 0%,
