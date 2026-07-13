@@ -915,6 +915,12 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
               optional
             />
 
+            {presentationFileName && (
+              <p className="mb-2 text-xs leading-relaxed text-white/45">
+                Загружен файл: {presentationFileName}
+              </p>
+            )}
+
             <input
               id="presentation-upload"
               type="file"
@@ -943,12 +949,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                   ? 'Заменить файл'
                   : 'Выбрать файл презентации'}
             </label>
-
-            <p className="mt-2 text-xs leading-relaxed text-white/45">
-              {presentationFileName
-                ? `Загружен файл: ${presentationFileName}`
-                : null}
-            </p>
           </div>
         </div>
       </div>
