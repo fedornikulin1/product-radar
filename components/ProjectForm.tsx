@@ -850,7 +850,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
       </div>
 
-      <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
+      <div className="flex min-h-[230px] flex-col rounded-[26px] border border-white/10 bg-black/35 p-5">
         <FieldLabel
           label="Презентация"
           hint="Необязательное поле. Можно загрузить PDF/PPT/PPTX/ODP/KEY до 25 МБ или вставить прямую ссылку."
@@ -886,7 +886,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           </div>
         ) : null}
 
-        <div className="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mt-auto grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
           {hasUploadedPresentation ? (
             <div>
               <FieldLabel
