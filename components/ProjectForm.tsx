@@ -665,6 +665,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           render={({ field }) => (
             <Select
               label="Статус проекта"
+              hint="Показывается на карточке проекта."
               required
               error={errors.status?.message}
               value={field.value}
@@ -685,6 +686,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           render={({ field }) => (
             <Select
               label="Стадия инвестирования"
+              hint="Текущий этап развития проекта."
               required
               error={errors.investment_stage?.message}
               value={field.value}
@@ -706,6 +708,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             <div>
               <FieldLabel
                 label="Тип размещения"
+                hint="Можно выбрать один или оба варианта."
                 required
               />
 
@@ -751,6 +754,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           render={({ field }) => (
             <Select
               label="Модель оплаты"
+              hint="Как проект предоставляет доступ."
               required
               error={errors.price?.message}
               value={field.value}
@@ -801,7 +805,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       <div className="grid items-start gap-5 md:grid-cols-3">
         <Input
           label="Email"
-          hint="Обязательное поле."
+          hint="Контактный email команды проекта."
           required
           error={errors.contact_email?.message}
           {...register('contact_email')}
@@ -860,7 +864,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           </div>
         ) : null}
 
-        <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid items-end gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
           {hasUploadedPresentation ? (
             <div>
               <FieldLabel
@@ -882,7 +886,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             />
           )}
 
-          <div className="md:pt-[34px]">
+          <div>
             <input
               id="presentation-upload"
               type="file"
@@ -915,7 +919,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             <p className="mt-2 text-xs leading-relaxed text-white/45">
               {presentationFileName
                 ? `Загружен файл: ${presentationFileName}`
-                : 'PDF, PPT, PPTX, ODP или KEY — до 25 МБ'}
+                : null}
             </p>
           </div>
         </div>
@@ -1470,7 +1474,7 @@ function FieldLabel({
     '';
 
   return (
-    <div className="mb-2">
+    <div className="mb-2 min-h-[46px]">
       <div className="flex flex-wrap items-center gap-2">
         <label className="block text-sm font-bold text-white">{label}</label>
 
