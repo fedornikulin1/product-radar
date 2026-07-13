@@ -172,6 +172,7 @@ const schema = z.object({
         'sales_partner',
         'tech_partner',
         'distribution_partner',
+        'other',
       ]),
     )
     .default([]),

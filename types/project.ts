@@ -42,7 +42,8 @@ export type CooperationNeed =
   | 'mentor'
   | 'sales_partner'
   | 'tech_partner'
-  | 'distribution_partner';
+  | 'distribution_partner'
+  | 'other';
 
 export type CooperationPriority = 'now' | 'soon' | 'later';
 

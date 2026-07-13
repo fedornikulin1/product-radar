@@ -85,6 +85,7 @@ export const COMMUNITY_STATUSES = [
   'Набираю людей в команду',
   'Хочу максимальную прожарку',
   'Ищу партнерства и коллабы',
+  'Другое',
 ] as const;
 
 export const READINESS_OPTIONS: ReadinessKey[] = [
@@ -107,6 +108,7 @@ export const COOPERATION_NEED_OPTIONS: CooperationNeed[] = [
   'sales_partner',
   'tech_partner',
   'distribution_partner',
+  'other',
 ];
 
 export const COOPERATION_PRIORITY_OPTIONS: CooperationPriority[] = [
@@ -209,6 +211,7 @@ export const cooperationNeedLabels: Record<CooperationNeed, string> = {
   sales_partner: 'Ищу sales-партнёра',
   tech_partner: 'Ищу tech-партнёра',
   distribution_partner: 'Ищу дистрибуционного партнёра',
+  other: 'Другое',
 };
 
 export const cooperationPriorityLabels: Record<CooperationPriority, string> = {
