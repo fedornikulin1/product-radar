@@ -2,7 +2,6 @@
 import PageReveal from '@/components/PageReveal';
 import { useEffect, useMemo, useState } from 'react';
 import ProjectCard from '@/components/ProjectCard';
-import ProjectMap from '@/components/ProjectMap';
 import ColorBendsBackground from '@/components/effects/ColorBendsBackground';
 import { Project } from '@/types/project';
 import {
@@ -322,13 +321,6 @@ export default function HomePage() {
               ))}
             </div>
 
-            {!loading && !error && (
-              <PageReveal delay={0.14}>
-                <div id="project-map" className="mt-10 scroll-mt-32">
-                  <ProjectMap projects={projects} />
-                </div>
-              </PageReveal>
-            )}
           </>
         )}
       </section>

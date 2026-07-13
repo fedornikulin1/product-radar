@@ -114,22 +114,6 @@ export default function SiteHeader() {
     });
   }
 
-  function handleScrollToMap() {
-    if (pathname !== '/') {
-      router.push('/#project-map');
-      return;
-    }
-
-    const element = document.getElementById('project-map');
-
-    if (!element) return;
-
-    element.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  }
-
   const navItemClass =
     'inline-flex h-10 shrink-0 items-center justify-center whitespace-nowrap px-3 !text-base !font-normal !text-white/60 transition hover:!text-white';
 
@@ -171,14 +155,6 @@ export default function SiteHeader() {
                   className={navItemClass}
                 >
                   Главная
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleScrollToMap}
-                  className={navItemClass}
-                >
-                  Карта проектов
                 </button>
 
                 <Link

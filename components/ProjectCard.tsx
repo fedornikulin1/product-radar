@@ -65,7 +65,7 @@ export default function ProjectCard({
         scroll={true}
         className="relative z-[3] flex h-full min-h-[430px] flex-col rounded-[28px] bg-black/20 p-6 text-white backdrop-blur-xl"
       >
-        <div className="flex gap-4">
+        <div className="flex min-h-[132px] gap-4">
           {project.logo_url ? (
             <Image
               src={project.logo_url}
@@ -95,7 +95,7 @@ export default function ProjectCard({
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex min-h-[58px] content-start flex-wrap gap-2">
           {audienceTypes.map((type) => (
             <span
               key={type}

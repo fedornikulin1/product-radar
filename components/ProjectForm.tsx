@@ -45,6 +45,7 @@ import {
   readinessLabels,
   statusLabels,
 } from '@/lib/projectOptions';
+import { calculateProjectCompleteness } from '@/lib/projectCompleteness';
 
 function makeClientId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -85,7 +86,11 @@ const schema = z.object({
 
   link: z.string().url('Введите корректную ссылку').or(z.literal('')),
   telegram: z.string().min(1, 'Telegram обязателен'),
-  contact_email: z.string().email('Введите корректный email').or(z.literal('')),
+  contact_email: z
+    .string()
+    .trim()
+    .min(1, 'Введите email')
+    .email('Введите корректный email'),
   contact_phone: z.string().optional().default(''),
   presentation_url: z
     .string()
@@ -381,9 +386,10 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
   const galleryUrls = useWatch({ control, name: 'gallery_urls' }) || [];
   const presentationUrl = useWatch({ control, name: 'presentation_url' });
   const hasUploadedPresentation = presentationUrl.startsWith('/uploads/');
-  const readinessItems = useWatch({ control, name: 'readiness_items' }) || [];
-  const readinessScore = Math.round(
-    (new Set(readinessItems).size / READINESS_OPTIONS.length) * 100,
+  const watchedValues = useWatch({ control });
+  const readinessScore = useMemo(
+    () => calculateProjectCompleteness(watchedValues as FormValues),
+    [watchedValues],
   );
 
   useEffect(() => {
@@ -549,7 +555,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         })),
       team_open_roles: (data.team_open_roles || []).filter(Boolean),
       readiness_items: Array.from(new Set(data.readiness_items || [])),
-      readiness_score: readinessScore,
+      readiness_score: calculateProjectCompleteness(data),
       cooperation_needs: Array.from(new Set(data.cooperation_needs || [])),
       cooperation_offer: data.cooperation_offer || '',
       cooperation_priority: data.cooperation_priority || 'later',

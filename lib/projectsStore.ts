@@ -11,10 +11,9 @@ import {
   ReadinessKey,
   TeamMember,
 } from '@/types/project';
+import { calculateProjectCompleteness } from '@/lib/projectCompleteness';
 
 const filePath = path.join(process.cwd(), 'data', 'projects.json');
-
-const READINESS_TOTAL = 9;
 
 async function ensureFile() {
   try {
@@ -23,11 +22,6 @@ async function ensureFile() {
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, '[]', 'utf-8');
   }
-}
-
-function calcReadinessScore(items?: ReadinessKey[]) {
-  const uniqueCount = new Set(items || []).size;
-  return Math.round((uniqueCount / READINESS_TOTAL) * 100);
 }
 
 function normalizeAudienceTypes(project: Partial<Project>): AudienceType[] {
@@ -127,7 +121,7 @@ function normalizeProject(project: Partial<Project>): Project {
     ? (Array.from(new Set(project.readiness_items)) as ReadinessKey[])
     : [];
 
-  return {
+  const normalizedProject: Project = {
     id: project.id || uuidv4(),
 
     title: project.title || '',
@@ -177,10 +171,7 @@ function normalizeProject(project: Partial<Project>): Project {
       : [],
 
     readiness_items: readinessItems,
-    readiness_score:
-      typeof project.readiness_score === 'number'
-        ? project.readiness_score
-        : calcReadinessScore(readinessItems),
+    readiness_score: 0,
 
     cooperation_needs: Array.isArray(project.cooperation_needs)
       ? project.cooperation_needs.filter(Boolean)
@@ -193,6 +184,11 @@ function normalizeProject(project: Partial<Project>): Project {
 
     created_at: project.created_at || new Date().toISOString(),
     updated_at: project.updated_at || new Date().toISOString(),
+  };
+
+  return {
+    ...normalizedProject,
+    readiness_score: calculateProjectCompleteness(normalizedProject),
   };
 }
 
@@ -263,7 +259,7 @@ function formDataToProjectData(
       ? data.team_open_roles.filter(Boolean)
       : [],
     readiness_items: readinessItems,
-    readiness_score: calcReadinessScore(readinessItems),
+    readiness_score: calculateProjectCompleteness(data),
     cooperation_needs: Array.isArray(data.cooperation_needs)
       ? data.cooperation_needs.filter(Boolean)
       : [],
