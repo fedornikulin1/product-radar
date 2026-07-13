@@ -156,6 +156,15 @@ export default function ProjectCard({
           <div className="mt-5 min-h-[86px]" aria-hidden="true" />
         )}
 
+        <div className="mb-5 rounded-2xl border border-cyan-200/15 bg-cyan-300/10 px-4 py-3 text-white/85">
+          <div className="text-[10px] font-black uppercase tracking-[0.16em] text-cyan-100/60">
+            Инвестиции
+          </div>
+          <div className="mt-1 truncate text-sm font-black">
+            {project.investment_amount || 'Сумма уточняется'}
+          </div>
+        </div>
+
         <div className="mt-auto border-t border-white/10 pt-5">
           <div className="flex items-center justify-between gap-3">
             <span className="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-sm font-medium text-white/80">
@@ -163,7 +172,7 @@ export default function ProjectCard({
             </span>
 
             <span className="max-w-[58%] truncate text-right text-sm font-black text-white/80">
-              {project.investment_amount || priceLabels[project.price]}
+              {priceLabels[project.price]}
             </span>
           </div>
         </div>
