@@ -3,9 +3,11 @@ import {
   deleteProject,
   getProjectById,
   isProjectPublic,
+  setProjectBitrixDealId,
   toPublicProject,
   updateProject,
 } from '@/lib/projectsStore';
+import { syncProjectToBitrix } from '@/lib/bitrix24';
 import { verifyAdminToken } from '@/utils/auth';
 
 type RouteContext = {
@@ -73,13 +75,24 @@ export async function PUT(
 
   const body = await request.json();
 
-  const project = await updateProject(id, body);
+  let project = await updateProject(id, body);
 
   if (!project) {
     return NextResponse.json(
       { error: 'Проект не найден' },
       { status: 404 },
     );
+  }
+
+  const bitrixResult = await syncProjectToBitrix(project);
+
+  if (bitrixResult?.dealId) {
+    project =
+      (await setProjectBitrixDealId(
+        project.id,
+        bitrixResult.dealId,
+        bitrixResult.companyId,
+      )) || project;
   }
 
   return NextResponse.json(project);

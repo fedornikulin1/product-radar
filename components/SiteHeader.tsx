@@ -11,6 +11,7 @@ export default function SiteHeader() {
 
   const [aboutMounted, setAboutMounted] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     function scrollToHashTarget() {
@@ -37,6 +38,21 @@ export default function SiteHeader() {
       window.removeEventListener('hashchange', scrollToHashTarget);
     };
   }, []);
+
+  useEffect(() => {
+    async function checkAdmin() {
+      try {
+        const res = await fetch('/api/admin/me', { cache: 'no-store' });
+        const data = await res.json();
+
+        setIsAdmin(Boolean(data?.isAdmin));
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+
+    checkAdmin();
+  }, [pathname]);
 
   useEffect(() => {
     function openFromAnywhere() {
@@ -179,6 +195,17 @@ export default function SiteHeader() {
                 >
                   О нас
                 </button>
+
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    title="Админка"
+                    aria-label="Открыть админку"
+                    className="ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#5227FF]/35 bg-[#5227FF]/25 text-sm font-black text-white shadow-lg shadow-[#5227FF]/10 transition hover:-translate-y-0.5 hover:bg-[#5227FF]/45"
+                  >
+                    A
+                  </Link>
+                )}
               </nav>
             </div>
           </div>
@@ -253,7 +280,7 @@ export default function SiteHeader() {
               />
             </div>
 
-            <div className="mt-5 grid gap-4 rounded-[28px] border border-white/10 bg-white/[0.04] p-5 md:grid-cols-[1fr_auto] md:items-center md:p-6">
+            <div className="mt-5 grid gap-4 rounded-[28px] border border-white/10 bg-black/30 p-5 md:grid-cols-[1fr_auto] md:items-center md:p-6">
               <div>
                 <div className="text-lg font-bold text-white">Навигатор проектов</div>
                 <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/60 md:text-base">
@@ -295,7 +322,7 @@ function AboutCard({
   text: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
       <div className="text-sm font-black text-white">{title}</div>
       <div className="mt-2 text-sm leading-relaxed text-white/65">
         {text}

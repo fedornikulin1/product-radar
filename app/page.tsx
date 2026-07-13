@@ -6,42 +6,23 @@ import ProjectMap from '@/components/ProjectMap';
 import ColorBendsBackground from '@/components/effects/ColorBendsBackground';
 import { Project } from '@/types/project';
 import {
-  PROJECT_CATEGORIES,
   STATUS_OPTIONS,
   statusLabels,
 } from '@/lib/projectOptions';
-
-const SORT_OPTIONS = [
-  {
-    value: 'created_at.desc',
-    label: 'Новые',
-  },
-  {
-    value: 'created_at.asc',
-    label: 'Старые',
-  },
-  {
-    value: 'title.asc',
-    label: 'A–Я',
-  },
-  {
-    value: 'title.desc',
-    label: 'Я–A',
-  },
-];
 
 export default function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [category, setCategory] = useState('');
-  const [status, setStatus] = useState('');
-  const [sort, setSort] = useState('created_at.desc');
+  const [categories, setCategories] = useState<string[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+  const [categorySearch, setCategorySearch] = useState('');
+  const [statuses, setStatuses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const hasActiveFilters = Boolean(
-    search || category || status || sort !== 'created_at.desc',
+    search || categories.length > 0 || statuses.length > 0,
   );
 
   useEffect(() => {
@@ -56,12 +37,29 @@ export default function HomePage() {
     const params = new URLSearchParams();
 
     if (debouncedSearch) params.set('search', debouncedSearch);
-    if (category) params.set('category', category);
-    if (status) params.set('status', status);
-    if (sort) params.set('sort', sort);
+    categories.forEach((category) => params.append('category', category));
+    statuses.forEach((status) => params.append('status', status));
+    params.set('sort', 'created_at.desc');
 
     return params.toString();
-  }, [debouncedSearch, category, status, sort]);
+  }, [debouncedSearch, categories, statuses]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories');
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setCategoryOptions(Array.isArray(data) ? data : []);
+      } catch {
+        setCategoryOptions([]);
+      }
+    }
+
+    loadCategories();
+  }, []);
 
   useEffect(() => {
     async function loadProjects() {
@@ -91,9 +89,9 @@ export default function HomePage() {
   function resetFilters() {
     setSearch('');
     setDebouncedSearch('');
-    setCategory('');
-    setStatus('');
-    setSort('created_at.desc');
+    setCategories([]);
+    setCategorySearch('');
+    setStatuses([]);
   }
 
   function openAbout() {
@@ -123,13 +121,23 @@ export default function HomePage() {
       .filter(Boolean),
   ).size;
 
+  const filteredCategories = useMemo(() => {
+    const query = categorySearch.trim().toLowerCase();
+
+    if (!query) return categoryOptions;
+
+    return categoryOptions.filter((item) =>
+      item.toLowerCase().includes(query),
+    );
+  }, [categoryOptions, categorySearch]);
+
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-6 md:px-8 md:py-10">
       <ColorBendsBackground />
 
       <section className="relative z-10 mx-auto max-w-7xl">
         <PageReveal delay={0}>
-          <header className="mb-8 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
+          <header className="mb-8 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div>
               <div className="mb-6 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-white/90 backdrop-blur">
@@ -164,7 +172,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-[30px] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="rounded-[30px] border border-white/10 bg-black/35 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
@@ -188,7 +196,7 @@ export default function HomePage() {
                 <StatCard value="B2B / B2C / B2G" label="Форматы" />
               </div>
 
-              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+              <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
                 <div className="text-sm font-black text-white">
                   Что внутри
                 </div>
@@ -202,173 +210,68 @@ export default function HomePage() {
           </div>
         </header>
         </PageReveal>
-        <PageReveal delay={0.08}>
-          <section className="sticky top-24 z-20 mb-10 rounded-[30px] border border-white/10 bg-black/35 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl">
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div className="relative">
-              <div className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-xl text-slate-400">
-                ⌕
-              </div>
+        <PageReveal delay={0.08} className="relative z-[120]">
+          <section className="sticky top-24 z-50 mb-10 rounded-[30px] border border-white/10 bg-black/35 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl">
+            <div className="grid gap-4 lg:grid-cols-[1fr_320px_260px_auto] lg:items-start">
+              <div className="relative">
+                <div className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-xl text-slate-400">
+                  ⌕
+                </div>
 
-              <input
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                placeholder="Поиск проекта..."
-                className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-14 text-base font-medium text-slate-950 shadow-lg shadow-black/10 outline-none transition placeholder:text-slate-400 focus:border-[#5227FF] focus:ring-4 focus:ring-[#5227FF]/20"
-              />
+                <input
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Поиск проекта..."
+                  className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-14 text-base font-medium text-slate-950 shadow-lg shadow-black/10 outline-none transition placeholder:text-slate-400 focus:border-[#5227FF] focus:ring-4 focus:ring-[#5227FF]/20"
+                />
 
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => setSearch('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-500 transition hover:bg-slate-200 hover:text-slate-900"
-                >
-                  ×
-                </button>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              {SORT_OPTIONS.map((option) => {
-                const active = sort === option.value;
-
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setSort(option.value)}
-                    className={
-                      active
-                        ? 'rounded-2xl bg-[#5227FF] px-4 py-3 text-sm font-black text-white shadow-lg shadow-[#5227FF]/20 transition hover:bg-indigo-500'
-                        : 'rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
-                    }
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={resetFilters}
-                disabled={!hasActiveFilters}
-                className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-35"
-              >
-                Сбросить
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-4">
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <h2 className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
-                  Категории
-                </h2>
-
-                {category && (
+                {search && (
                   <button
                     type="button"
-                    onClick={() => setCategory('')}
-                    className="text-xs font-bold text-white/45 transition hover:text-white"
+                    onClick={() => setSearch('')}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-500 transition hover:bg-slate-200 hover:text-slate-900"
                   >
-                    Очистить
+                    ×
                   </button>
                 )}
               </div>
 
-              <div className="custom-scrollbar flex gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  onClick={() => setCategory('')}
-                  className={
-                    category === ''
-                      ? 'shrink-0 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-black text-slate-950 shadow-lg shadow-black/10 transition'
-                      : 'shrink-0 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
-                  }
-                >
-                  Все
-                </button>
+              <MultiSelectFilter
+                title="Категории"
+                placeholder="Поиск категории..."
+                options={filteredCategories}
+                selected={categories}
+                search={categorySearch}
+                onSearch={setCategorySearch}
+                onChange={setCategories}
+                emptyText="Категории не найдены"
+              />
 
-                {PROJECT_CATEGORIES.map((item) => {
-                  const active = category === item;
+              <MultiSelectFilter
+                title="Статус"
+                placeholder="Выбрать статус..."
+                options={STATUS_OPTIONS}
+                selected={statuses}
+                onChange={setStatuses}
+                labelsMap={statusLabels}
+              />
 
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setCategory(active ? '' : item)}
-                      className={
-                        active
-                          ? 'shrink-0 rounded-full border border-[#5227FF]/50 bg-[#5227FF]/30 px-4 py-2 text-sm font-black text-white shadow-lg shadow-[#5227FF]/10'
-                          : 'shrink-0 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:border-white/20 hover:bg-white/20 hover:text-white'
-                      }
-                    >
-                      {item}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <h2 className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
-                  Статус
-                </h2>
-
-                <div className="flex items-center gap-2">
-                  {status && (
-                    <button
-                      type="button"
-                      onClick={() => setStatus('')}
-                      className="text-xs font-bold text-white/45 transition hover:text-white"
-                    >
-                      Очистить
-                    </button>
-                  )}
-
-                  <div className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75">
-                    {loading ? 'Ищем...' : `Найдено: ${projects.length}`}
-                  </div>
+              <div className="flex gap-2 lg:justify-end">
+                <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center text-sm font-bold text-white/75 lg:min-w-36">
+                  {loading ? 'Ищем...' : `Найдено: ${projects.length}`}
                 </div>
-              </div>
 
-              <div className="custom-scrollbar flex gap-2 overflow-x-auto pb-1">
                 <button
                   type="button"
-                  onClick={() => setStatus('')}
-                  className={
-                    status === ''
-                      ? 'shrink-0 rounded-full border border-white/20 bg-white px-4 py-2 text-sm font-black text-slate-950 shadow-lg shadow-black/10 transition'
-                      : 'shrink-0 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
-                  }
+                  onClick={resetFilters}
+                  disabled={!hasActiveFilters}
+                  className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-black text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-35"
                 >
-                  Все
+                  Сбросить
                 </button>
-
-                {STATUS_OPTIONS.map((item) => {
-                  const active = status === item;
-
-                  return (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setStatus(active ? '' : item)}
-                      className={
-                        active
-                          ? 'shrink-0 rounded-full border border-[#8B7CFF]/50 bg-[#8B7CFF]/20 px-4 py-2 text-sm font-black text-white shadow-lg shadow-[#8B7CFF]/10'
-                          : 'shrink-0 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:border-white/20 hover:bg-white/20 hover:text-white'
-                      }
-                    >
-                      {statusLabels[item]}
-                    </button>
-                  );
-                })}
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         </PageReveal>       
         {loading && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -385,7 +288,7 @@ export default function HomePage() {
         )}
 
         {!loading && !error && projects.length === 0 && (
-          <div className="rounded-[28px] border border-white/10 bg-black/25 p-10 text-center text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-black/35 p-10 text-center text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
             <h2 className="text-2xl font-black">Проекты не найдены</h2>
 
             <p className="mt-3 text-white/70">
@@ -406,7 +309,7 @@ export default function HomePage() {
           <>
             <div
               id="projects-grid"
-              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+              className="relative z-0 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
             >
               {projects.map((project, index) => (
                 <PageReveal
@@ -441,16 +344,128 @@ function StatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
       <div className="text-2xl font-black text-white">{value}</div>
       <div className="mt-1 text-sm text-white/55">{label}</div>
     </div>
   );
 }
 
+function MultiSelectFilter({
+  title,
+  placeholder,
+  options,
+  selected,
+  search = '',
+  onSearch,
+  onChange,
+  labelsMap,
+  emptyText = 'Ничего не найдено',
+}: {
+  title: string;
+  placeholder: string;
+  options: readonly string[];
+  selected: string[];
+  search?: string;
+  onSearch?: (value: string) => void;
+  onChange: (value: string[]) => void;
+  labelsMap?: Record<string, string>;
+  emptyText?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function toggle(option: string) {
+    if (selected.includes(option)) {
+      onChange(selected.filter((item) => item !== option));
+      return;
+    }
+
+    onChange([...selected, option]);
+  }
+
+  const label = selected.length
+    ? selected.map((item) => labelsMap?.[item] ?? item).join(', ')
+    : placeholder;
+
+  return (
+    <div className={open ? 'relative z-[140]' : 'relative'}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="flex h-14 w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/95 px-4 text-left text-sm font-bold text-slate-950 shadow-lg shadow-black/10 outline-none transition hover:bg-white"
+      >
+        <span className={selected.length ? 'truncate' : 'truncate text-slate-400'}>
+          {label}
+        </span>
+        <span className="text-slate-400">⌄</span>
+      </button>
+
+      {selected.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {selected.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => toggle(item)}
+              className="rounded-full border border-[#5227FF]/40 bg-[#5227FF]/25 px-2.5 py-1 text-xs font-bold text-white transition hover:bg-[#5227FF]/40"
+            >
+              {labelsMap?.[item] ?? item} ×
+            </button>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div className="absolute left-0 top-[calc(100%+8px)] z-[150] w-full overflow-hidden rounded-2xl border border-white/20 bg-slate-950 p-3 shadow-2xl shadow-black/70">
+          <div className="mb-2 text-xs font-black uppercase tracking-[0.16em] text-white/45">
+            {title}
+          </div>
+
+          {onSearch && (
+            <input
+              value={search}
+              onChange={(event) => onSearch(event.target.value)}
+              placeholder={placeholder}
+              className="mb-2 h-11 w-full rounded-xl border border-white/10 bg-white/95 px-3 text-sm font-medium text-slate-950 outline-none placeholder:text-slate-400 focus:border-[#5227FF]"
+            />
+          )}
+
+          <div className="custom-scrollbar max-h-56 space-y-1 overflow-y-auto pr-1">
+            {options.map((option) => {
+              const active = selected.includes(option);
+
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => toggle(option)}
+                  className={
+                    active
+                      ? 'flex w-full items-center justify-between rounded-xl bg-[#5227FF] px-3 py-2 text-left text-sm font-bold text-white'
+                      : 'flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-white/75 transition hover:bg-white/10 hover:text-white'
+                  }
+                >
+                  <span>{labelsMap?.[option] ?? option}</span>
+                  {active && <span>✓</span>}
+                </button>
+              );
+            })}
+
+            {options.length === 0 && (
+              <div className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white/50">
+                {emptyText}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SkeletonCard() {
   return (
-    <div className="skeleton-card rounded-[28px] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+    <div className="skeleton-card rounded-[28px] border border-white/10 bg-black/35 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
       <div className="flex gap-4">
         <div className="h-20 w-20 rounded-2xl bg-white/10" />
 

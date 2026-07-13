@@ -50,9 +50,9 @@ export default function ProjectCard({
     <GlareHover
       width="100%"
       height="100%"
-      background="rgba(255,255,255,0.075)"
+      background="rgba(32,32,44,0.52)"
       borderRadius="28px"
-      borderColor="rgba(255,255,255,0.14)"
+      borderColor="rgba(255,255,255,0.18)"
       glareColor="#ffffff"
       glareOpacity={0.22}
       glareAngle={-30}
@@ -63,7 +63,7 @@ export default function ProjectCard({
       <Link
         href={`/projects/${project.id}`}
         scroll={true}
-        className="relative z-[3] block h-full min-h-[360px] rounded-[28px] bg-black/10 p-6 text-white backdrop-blur-xl"
+        className="relative z-[3] flex h-full min-h-[430px] flex-col rounded-[28px] bg-black/20 p-6 text-white backdrop-blur-xl"
       >
         <div className="flex gap-4">
           {project.logo_url ? (
@@ -110,7 +110,7 @@ export default function ProjectCard({
           </span>
 
           {placementLabel && (
-            <span className="rounded-full border border-white/10 bg-white/[0.07] px-3 py-1 text-xs font-bold text-white/75">
+            <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-bold text-white/80">
               {placementLabel}
             </span>
           )}
@@ -118,7 +118,7 @@ export default function ProjectCard({
           {(project.categories || []).slice(0, 2).map((category) => (
             <span
               key={category}
-              className="rounded-full border border-white/10 bg-white/[0.07] px-3 py-1 text-xs font-bold text-white/65"
+              className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-bold text-white/75"
             >
               {category}
             </span>
@@ -134,7 +134,7 @@ export default function ProjectCard({
                 ? 'border-emerald-300/20 bg-emerald-300/10 text-emerald-100'
                 : readinessScore >= 40
                   ? 'border-[#8B7CFF]/25 bg-[#8B7CFF]/15 text-violet-100'
-                  : 'border-white/10 bg-white/[0.05] text-white/75'
+                  : 'border-white/10 bg-black/20 text-white/80'
             }
           />
 
@@ -148,8 +148,8 @@ export default function ProjectCard({
           />
         </div>
 
-        {cooperationNeeds.length > 0 && (
-          <div className="mt-5">
+        {cooperationNeeds.length > 0 ? (
+          <div className="mt-5 min-h-[86px]">
             <div className="mb-2 text-[11px] font-black uppercase tracking-[0.16em] text-white/35">
               Сотрудничество
             </div>
@@ -165,11 +165,13 @@ export default function ProjectCard({
               ))}
             </div>
           </div>
+        ) : (
+          <div className="mt-5 min-h-[86px]" aria-hidden="true" />
         )}
 
-        <div className="mt-7 border-t border-white/10 pt-5">
+        <div className="mt-auto border-t border-white/10 pt-5">
           <div className="flex items-center justify-between gap-3">
-            <span className="rounded-full border border-white/10 bg-white/[0.07] px-4 py-2 text-sm font-medium text-white/70">
+            <span className="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-sm font-medium text-white/80">
               {statusLabels[project.status]}
             </span>
 
@@ -186,7 +188,7 @@ export default function ProjectCard({
 function MetricBadge({
   label,
   value,
-  accent = 'border-white/10 bg-white/[0.05] text-white/75',
+  accent = 'border-white/10 bg-black/20 text-white/80',
 }: {
   label: string;
   value: string;

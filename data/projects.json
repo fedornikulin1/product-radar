@@ -27,7 +27,6 @@
       "https://placehold.co/1200x800/1f2937/ffffff?text=ArcticGrid+03"
     ],
     "video_url": "",
-    "team": "6 человек",
     "technologies": "Go, React, PostgreSQL, Grafana, IoT",
     "status": "developing",
     "investment_stage": "seed",
@@ -76,7 +75,8 @@
       "notes": "Демонстрационные данные.",
       "last_contact_at": "",
       "next_action": "Подобрать пилотную площадку.",
-      "show_public": true
+      "bitrix_deal_id": 28,
+      "bitrix_company_id": 26
     },
     "created_at": "2026-01-10T09:30:00.000Z",
     "updated_at": "2026-06-28T09:30:00.000Z"
@@ -109,7 +109,6 @@
       "https://placehold.co/1200x800/1f2937/ffffff?text=Permafrost%20Guard+03"
     ],
     "video_url": "",
-    "team": "5 человек",
     "technologies": "Python, FastAPI, TimescaleDB, LoRaWAN, React",
     "status": "developing",
     "investment_stage": "seed",
@@ -154,7 +153,8 @@
       "notes": "Демонстрационные данные.",
       "last_contact_at": "",
       "next_action": "Согласовать объект для пилота.",
-      "show_public": true
+      "bitrix_deal_id": 30,
+      "bitrix_company_id": 28
     },
     "created_at": "2026-02-04T10:00:00.000Z",
     "updated_at": "2026-06-26T10:00:00.000Z"
@@ -187,7 +187,6 @@
       "https://placehold.co/1200x800/1f2937/ffffff?text=NorthRoute+03"
     ],
     "video_url": "",
-    "team": "7 человек",
     "technologies": "Next.js, NestJS, PostgreSQL, PostGIS, Python",
     "status": "developing",
     "investment_stage": "startup",
@@ -234,7 +233,8 @@
       "notes": "Демонстрационные данные.",
       "last_contact_at": "",
       "next_action": "Подготовить инвесторский обзор.",
-      "show_public": true
+      "bitrix_deal_id": 32,
+      "bitrix_company_id": 30
     },
     "created_at": "2026-03-12T10:00:00.000Z",
     "updated_at": "2026-06-24T10:00:00.000Z"
@@ -267,7 +267,6 @@
       "https://placehold.co/1200x800/1f2937/ffffff?text=SakhaLingua+03"
     ],
     "video_url": "",
-    "team": "4 человека",
     "technologies": "React Native, Next.js, Python, Speech-to-Text",
     "status": "developing",
     "investment_stage": "pre_seed",
@@ -357,7 +356,8 @@
       "notes": "Демонстрационные данные.",
       "last_contact_at": "",
       "next_action": "Провести методическую экспертизу.",
-      "show_public": false
+      "bitrix_deal_id": 34,
+      "bitrix_company_id": 32
     },
     "created_at": "2026-04-02T08:00:00.000Z",
     "updated_at": "2026-07-06T06:13:45.279Z"
@@ -390,7 +390,6 @@
       "https://placehold.co/1200x800/1f2937/ffffff?text=Mammoth%20Vision+03"
     ],
     "video_url": "",
-    "team": "5 человек",
     "technologies": "Python, PyTorch, FastAPI, PostGIS, Next.js",
     "status": "developing",
     "investment_stage": "seed",
@@ -445,7 +444,8 @@
       "notes": "Демонстрационные данные.",
       "last_contact_at": "",
       "next_action": "Подготовить датасет для пилота.",
-      "show_public": true
+      "bitrix_deal_id": 36,
+      "bitrix_company_id": 34
     },
     "created_at": "2026-05-08T11:00:00.000Z",
     "updated_at": "2026-07-03T05:44:20.379Z"

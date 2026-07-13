@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 const footerLinkClass =
   'text-sm font-normal text-white/55 transition hover:text-white';
@@ -8,38 +7,16 @@ export default function SiteFooter() {
   return (
     <footer className="relative z-10 w-full border-t border-white/10 bg-black/80 text-white backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-8 md:py-16">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.35fr_0.75fr_1fr_0.75fr] lg:gap-12">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_1fr_0.85fr] lg:gap-12">
           <section>
-            <a
-              href="https://yakutiacorp.ru/"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-3 transition hover:opacity-85"
-            >
-              <Image
-                src="/brand/yakutia-corp-icon.png"
-                alt=""
-                width={48}
-                height={48}
-                className="h-12 w-12 shrink-0 object-contain"
-              />
-              <span className="max-w-64 text-sm font-bold leading-snug text-white md:text-base">
-                Корпорация развития Республики Саха (Якутия)
-              </span>
-            </a>
+            <h2 className="max-w-72 text-base font-bold leading-snug text-white">
+              Корпорация развития Республики Саха (Якутия)
+            </h2>
 
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">
               Создаём будущее через устойчивое развитие территорий,
               современную инфраструктуру и поддержку перспективных проектов.
             </p>
-
-            <a
-              href="mailto:info@corp-sakha.ru?subject=Заявка с сайта Навигатор проектов"
-              className="mt-6 inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 px-5 text-sm font-medium text-white transition hover:bg-white/15"
-            >
-              Оставить заявку
-              <span aria-hidden className="ml-2 text-white/45">→</span>
-            </a>
           </section>
 
           <FooterColumn title="Карта сайта">
@@ -59,6 +36,7 @@ export default function SiteFooter() {
           </FooterColumn>
 
           <FooterColumn title="Социальные сети">
+            <SocialLink href="https://yakutiacorp.ru/" shortName="WEB">Официальный сайт</SocialLink>
             <SocialLink href="https://vk.com/yakutiacorp" shortName="VK">ВКонтакте</SocialLink>
             <SocialLink href="https://t.me/yakutiacorp" shortName="TG">Telegram</SocialLink>
             <SocialLink href="https://max.ru/id1435289661_gos" shortName="MAX">MAX</SocialLink>

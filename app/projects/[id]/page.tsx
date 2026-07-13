@@ -2,6 +2,7 @@
 import PageReveal from '@/components/PageReveal';
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -146,7 +147,7 @@ export default function ProjectPage() {
       <main className="relative min-h-screen px-4 py-6 md:px-8 md:py-10">
         <ColorBendsBackground />
         <section className="relative z-10 mx-auto max-w-7xl">
-          <div className="rounded-[28px] border border-white/10 bg-black/30 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-black/40 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
             Загрузка проекта...
           </div>
         </section>
@@ -173,14 +174,7 @@ export default function ProjectPage() {
 
       <article className="relative z-10 mx-auto max-w-7xl">
       <PageReveal delay={0}>
-        <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-black/30 p-3 text-white shadow-2xl shadow-black/25 backdrop-blur-xl">
-          <Link
-            href="/"
-            className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xl font-bold text-white/80 transition hover:bg-white/20 hover:text-white"
-          >
-            ×
-          </Link>
-
+        <div className="relative text-white">
           <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
             <MainBlock project={project} />
             <SidebarBlock project={project} isAdmin={isAdmin} />
@@ -201,7 +195,7 @@ export default function ProjectPage() {
 
         {relatedProjects.length > 0 && (
         <PageReveal delay={0.16}>
-            <section className="mt-5 rounded-[28px] border border-white/10 bg-black/30 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <section className="mt-5 rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
             <div className="mb-5">
               <h2 className="text-2xl font-black text-white">
                 Может быть интересно
@@ -232,12 +226,9 @@ function MainBlock({ project }: { project: Project }) {
   const investmentStage = project.investment_stage || 'pre_seed';
   const audienceTypes = getAudienceTypes(project);
   const placementTypes = getPlacementTypes(project);
-  const publicChanges = (project.change_log || []).filter(
-    (item) => item.public !== false,
-  );
 
   return (
-    <section className="rounded-[28px] border border-white/10 bg-white/[0.08] p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl md:p-6">
+    <section className="rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl md:p-6">
       <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
         <div>
           <ProjectImage project={project} />
@@ -268,13 +259,6 @@ function MainBlock({ project }: { project: Project }) {
         </div>
 
         <div className="min-w-0 pr-8 md:pr-10">
-          <Link
-            href="/"
-            className="mb-4 inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/70 transition hover:bg-white/20 hover:text-white"
-          >
-            ← На главную
-          </Link>
-
           <h1 className="text-3xl font-black leading-tight tracking-tight text-white md:text-4xl">
             {project.title}
           </h1>
@@ -348,7 +332,7 @@ function MainBlock({ project }: { project: Project }) {
           />
         </div>
 
-        <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-white/55">
+        <p className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4 text-sm leading-relaxed text-white/55">
           {investmentStageDescriptions[investmentStage]}
         </p>
       </section>
@@ -378,13 +362,6 @@ function MainBlock({ project }: { project: Project }) {
 
       <TeamSection project={project} />
 
-      {publicChanges.length > 0 && (
-        <>
-          <Divider />
-          <ChangeLogSection changes={publicChanges} />
-        </>
-      )}
-
       {project.additional && (
         <>
           <Divider />
@@ -406,7 +383,7 @@ function SidebarBlock({
 
   return (
     <aside className="space-y-4">
-      <section className="rounded-[28px] border border-white/10 bg-white/[0.08] p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl">
+      <section className="rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl">
         <h2 className="text-base font-black text-white">
           Основная информация
         </h2>
@@ -441,8 +418,8 @@ function SidebarBlock({
             label="Команда"
             value={
               project.team_members?.length
-                ? `${project.team_members.length} участников`
-                : project.team || 'Команда уточняется'
+                ? formatTeamCount(project.team_members.length)
+                : 'Состав не указан'
             }
           />
 
@@ -460,7 +437,7 @@ function SidebarBlock({
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-white/10 bg-white/[0.08] p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl">
+      <section className="rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-xl shadow-black/10 backdrop-blur-xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-base font-black text-white">
@@ -517,7 +494,7 @@ function ReadinessSection({ project }: { project: Project }) {
   const score = project.readiness_score || 0;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+    <section className="rounded-2xl border border-white/10 bg-black/30 p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-black text-white">
@@ -545,7 +522,7 @@ function ReadinessSection({ project }: { project: Project }) {
           {items.map((item) => (
             <div
               key={item}
-              className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.04] p-3"
+              className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/30 p-3"
             >
               <span className="mt-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-300/15 text-xs font-black text-emerald-100">
                 ✓
@@ -571,7 +548,7 @@ function CooperationSection({ project }: { project: Project }) {
 
   return (
     <section className="grid gap-4 md:grid-cols-2">
-      <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+      <section className="rounded-2xl border border-white/10 bg-black/30 p-5">
         <h3 className="text-base font-black text-white">
           Запрос по сотрудничеству
         </h3>
@@ -586,7 +563,7 @@ function CooperationSection({ project }: { project: Project }) {
           )}
         </div>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
           <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
             Срочность
           </div>
@@ -595,7 +572,7 @@ function CooperationSection({ project }: { project: Project }) {
           </div>
         </div>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
           <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
             Основной запрос
           </div>
@@ -605,12 +582,12 @@ function CooperationSection({ project }: { project: Project }) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+      <section className="rounded-2xl border border-white/10 bg-black/30 p-5">
         <h3 className="text-base font-black text-white">
           Что получает партнёр
         </h3>
 
-        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+        <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
           <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
             Возможность / оффер
           </div>
@@ -641,28 +618,22 @@ function TeamSection({ project }: { project: Project }) {
   const teamMembers = project.team_members || [];
   const openRoles = project.team_open_roles || [];
 
-  if (teamMembers.length === 0 && openRoles.length === 0 && !project.team) {
+  if (teamMembers.length === 0 && openRoles.length === 0) {
     return null;
   }
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+    <section className="rounded-2xl border border-white/10 bg-black/30 p-5">
       <h3 className="text-base font-black text-white">
         Команда проекта
       </h3>
-
-      {project.team && (
-        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-white/60">
-          {project.team}
-        </p>
-      )}
 
       {teamMembers.length > 0 && (
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           {teamMembers.map((member) => (
             <div
               key={member.id}
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+              className="rounded-2xl border border-white/10 bg-black/30 p-4"
             >
               <div className="text-lg font-black text-white">
                 {member.name || 'Участник команды'}
@@ -723,39 +694,6 @@ function TeamSection({ project }: { project: Project }) {
   );
 }
 
-function ChangeLogSection({
-  changes,
-}: {
-  changes: Project['change_log'];
-}) {
-  if (!changes?.length) return null;
-
-  return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <h3 className="text-base font-black text-white">
-        Обновления проекта
-      </h3>
-
-      <div className="mt-4 space-y-3">
-        {changes.slice(0, 8).map((item) => (
-          <div
-            key={item.id}
-            className="rounded-xl border border-white/10 bg-white/[0.04] p-4"
-          >
-            <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
-              {formatDate(item.created_at)}
-            </div>
-
-            <div className="mt-2 text-sm leading-relaxed text-white/75">
-              {item.text}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function ProjectImage({ project }: { project: Project }) {
   const image = project.logo_url || project.gallery_urls[0];
 
@@ -791,6 +729,23 @@ function ProjectGallery({ images }: { images: string[] }) {
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [startIndex, setStartIndex] = useState(0);
 
+  useEffect(() => {
+    if (!activeImage) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveImage(null);
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeImage]);
+
   const visibleImages = useMemo(() => {
     const result: string[] = [];
 
@@ -813,7 +768,7 @@ function ProjectGallery({ images }: { images: string[] }) {
 
   return (
     <>
-      <section className="mt-5 rounded-[28px] border border-white/10 bg-black/30 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <section className="mt-5 rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-2xl font-black text-white">
@@ -895,37 +850,47 @@ function ProjectGallery({ images }: { images: string[] }) {
         )}
       </section>
 
-      {activeImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl"
-          onClick={() => setActiveImage(null)}
-        >
-          <button
-            type="button"
+      {activeImage &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
             onClick={() => setActiveImage(null)}
-            className="absolute right-5 top-5 rounded-full border border-white/15 bg-white/10 px-5 py-3 text-base font-black text-white transition hover:bg-white/20"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Просмотр изображения"
           >
-            Закрыть ×
-          </button>
+            <div
+              className="relative max-h-[92vh] max-w-[94vw]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Image
+                src={activeImage}
+                alt=""
+                width={1600}
+                height={1000}
+                unoptimized
+                className="h-auto max-h-[92vh] w-auto max-w-[94vw] rounded-[28px] object-contain shadow-2xl shadow-black"
+              />
 
-          <Image
-            src={activeImage}
-            alt=""
-            width={1600}
-            height={1000}
-            unoptimized
-            onClick={(event) => event.stopPropagation()}
-            className="h-auto max-h-[86vh] w-auto max-w-[92vw] rounded-[28px] object-contain shadow-2xl shadow-black"
-          />
-        </div>
-      )}
+              <button
+                type="button"
+                onClick={() => setActiveImage(null)}
+                className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/65 text-xl font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-black/85"
+                aria-label="Закрыть изображение"
+              >
+                ×
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
 
 function VideoBlock({ videoUrl }: { videoUrl: string }) {
   return (
-    <section className="mt-5 rounded-[28px] border border-white/10 bg-black/30 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
+    <section className="mt-5 rounded-[28px] border border-white/10 bg-black/40 p-5 text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
       <h2 className="mb-5 text-2xl font-black text-white">
         Видео
       </h2>
@@ -963,7 +928,7 @@ function SideInfoLine({
   value: string;
 }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+    <section className="rounded-xl border border-white/10 bg-black/30 p-3">
       <h3 className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
         {label}
       </h3>
@@ -979,7 +944,7 @@ function TextCard({ title, value }: { title: string; value?: string }) {
   if (!value) return null;
 
   return (
-    <section className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+    <section className="rounded-2xl border border-white/10 bg-black/30 p-5">
       <h3 className="text-base font-black text-white">
         {title}
       </h3>
@@ -1006,7 +971,7 @@ function ContactLine({
         href={href}
         target="_blank"
         rel="noreferrer"
-        className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:bg-white/10"
+        className="block rounded-xl border border-white/10 bg-black/30 p-3 transition hover:bg-white/10"
       >
         <div className="text-xs font-bold uppercase tracking-wide text-white/35">
           {label}
@@ -1020,7 +985,7 @@ function ContactLine({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+    <div className="rounded-xl border border-white/10 bg-black/30 p-3">
       <div className="text-xs font-bold uppercase tracking-wide text-white/35">
         {label}
       </div>
@@ -1082,14 +1047,16 @@ function toEmbedUrl(url: string) {
   return url;
 }
 
-function formatDate(value: string) {
-  try {
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date(value));
-  } catch {
-    return value;
+function formatTeamCount(count: number) {
+  const lastTwoDigits = count % 100;
+  const lastDigit = count % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return `${count} участников`;
   }
+
+  if (lastDigit === 1) return `${count} участник`;
+  if (lastDigit >= 2 && lastDigit <= 4) return `${count} участника`;
+  return `${count} участников`;
 }
+

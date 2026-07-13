@@ -88,7 +88,8 @@ function normalizeCRM(crm?: ProjectCRM): ProjectCRM {
     notes: crm?.notes || '',
     last_contact_at: crm?.last_contact_at || '',
     next_action: crm?.next_action || '',
-    show_public: crm?.show_public ?? true,
+    bitrix_deal_id: crm?.bitrix_deal_id,
+    bitrix_company_id: crm?.bitrix_company_id,
   };
 }
 
@@ -153,7 +154,6 @@ function normalizeProject(project: Partial<Project>): Project {
     gallery_urls: Array.isArray(project.gallery_urls) ? project.gallery_urls : [],
     video_url: project.video_url || '',
 
-    team: project.team || '',
     technologies: project.technologies || '',
 
     status: project.status || 'developing',
@@ -224,10 +224,7 @@ export async function getProjectById(id: string) {
 }
 
 export function isProjectPublic(project: Project) {
-  return (
-    project.crm?.status === 'ready_for_showcase' &&
-    project.crm?.show_public !== false
-  );
+  return project.crm?.status === 'ready_for_showcase';
 }
 
 export function toPublicProject(project: Project): Project {
@@ -487,10 +484,20 @@ export async function updateProject(id: string, data: ProjectFormData) {
 
   const previousProject = projects[index];
   const now = new Date().toISOString();
+  const formProjectData = formDataToProjectData(data);
 
   const nextProjectBase = normalizeProject({
     ...previousProject,
-    ...formDataToProjectData(data),
+    ...formProjectData,
+    crm: {
+      ...normalizeCRM(formProjectData.crm),
+      bitrix_deal_id:
+        formProjectData.crm?.bitrix_deal_id ||
+        previousProject.crm?.bitrix_deal_id,
+      bitrix_company_id:
+        formProjectData.crm?.bitrix_company_id ||
+        previousProject.crm?.bitrix_company_id,
+    },
     id,
     created_at: previousProject.created_at,
     updated_at: now,
@@ -509,6 +516,59 @@ export async function updateProject(id: string, data: ProjectFormData) {
   await saveProjects(projects);
 
   return updatedProject;
+}
+
+export async function setProjectBitrixDealId(
+  id: string,
+  bitrixDealId: number,
+  bitrixCompanyId?: number,
+) {
+  const projects = await getProjects();
+  const index = projects.findIndex((project) => project.id === id);
+
+  if (index === -1) return null;
+
+  const project = projects[index];
+  const updatedProject: Project = {
+    ...project,
+    crm: {
+      ...normalizeCRM(project.crm),
+      bitrix_deal_id: bitrixDealId,
+      bitrix_company_id: bitrixCompanyId ?? project.crm?.bitrix_company_id,
+    },
+  };
+
+  projects[index] = updatedProject;
+  await saveProjects(projects);
+
+  return updatedProject;
+}
+
+export async function upsertProjectFromBitrix(data: ProjectFormData) {
+  const projects = await getProjects();
+  const bitrixDealId = data.crm?.bitrix_deal_id;
+  const siteProjectId = data.crm?.notes?.match(/siteProjectId:([^\s]+)/)?.[1];
+  const existingIndex = projects.findIndex((project) => {
+    return (
+      (siteProjectId && project.id === siteProjectId) ||
+      (bitrixDealId && project.crm?.bitrix_deal_id === bitrixDealId)
+    );
+  });
+
+  if (existingIndex >= 0) {
+    const updatedProject = await updateProject(projects[existingIndex].id, data);
+    return {
+      project: updatedProject,
+      created: false,
+    };
+  }
+
+  const project = await createProject(data);
+
+  return {
+    project,
+    created: true,
+  };
 }
 
 export async function deleteProject(id: string) {

@@ -82,8 +82,6 @@ export default function InvestorsPage() {
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      if (project.crm?.show_public === false) return false;
-
       if (stage && project.investment_stage !== stage) return false;
 
       if (audience) {
@@ -104,7 +102,7 @@ export default function InvestorsPage() {
       if (presentationOnly && !project.presentation_url) return false;
 
       if (teamOnly) {
-        const hasTeam = Boolean(project.team_members?.length || project.team);
+        const hasTeam = Boolean(project.team_members?.length);
         if (!hasTeam) return false;
       }
 
@@ -157,7 +155,7 @@ export default function InvestorsPage() {
 
       <section className="relative z-10 mx-auto max-w-7xl">
         <PageReveal delay={0}>
-          <header className="mb-8 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
+          <header className="mb-8 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
             <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
               <div>
                 <div className="mb-5 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-white/90">
@@ -325,7 +323,7 @@ export default function InvestorsPage() {
 
         {loading && (
           <PageReveal delay={0.1}>
-            <div className="rounded-[28px] border border-white/10 bg-black/25 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="rounded-[28px] border border-white/10 bg-black/35 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
               Загружаем проекты...
             </div>
           </PageReveal>
@@ -341,7 +339,7 @@ export default function InvestorsPage() {
 
         {!loading && !error && filteredProjects.length === 0 && (
           <PageReveal delay={0.1}>
-            <div className="rounded-[28px] border border-white/10 bg-black/25 p-10 text-center text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
+            <div className="rounded-[28px] border border-white/10 bg-black/35 p-10 text-center text-white shadow-2xl shadow-black/20 backdrop-blur-xl">
               <h2 className="text-2xl font-black">Ничего не найдено</h2>
               <p className="mt-3 text-white/70">
                 Попробуй ослабить фильтры для инвесторской выдачи.
@@ -412,7 +410,7 @@ function StatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+    <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
       <div className="text-2xl font-black text-white">{value}</div>
       <div className="mt-1 text-sm text-white/55">{label}</div>
     </div>

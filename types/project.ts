@@ -80,7 +80,8 @@ export type ProjectCRM = {
   notes: string;
   last_contact_at: string;
   next_action: string;
-  show_public: boolean;
+  bitrix_deal_id?: number;
+  bitrix_company_id?: number;
 };
 
 export type Project = {
@@ -110,7 +111,6 @@ export type Project = {
   gallery_urls: string[];
   video_url: string;
 
-  team: string;
   technologies: string;
 
   status: ProjectStatus;
@@ -186,7 +186,6 @@ export type ProjectFormData = {
   gallery_urls: string[];
   video_url: string;
 
-  team: string;
   technologies: string;
 
   status: ProjectStatus;

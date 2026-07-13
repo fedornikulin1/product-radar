@@ -40,8 +40,8 @@ export default function EditProjectPage() {
       <main className="relative min-h-screen px-4 py-6 md:px-8 md:py-10">
         <ColorBendsBackground />
 
-        <section className="relative z-10 mx-auto max-w-5xl">
-          <div className="rounded-[30px] border border-white/10 bg-black/25 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
+        <section className="relative z-10 mx-auto max-w-6xl">
+          <div className="rounded-[30px] border border-white/10 bg-black/35 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
             Загрузка проекта...
           </div>
         </section>
@@ -54,7 +54,7 @@ export default function EditProjectPage() {
       <main className="relative min-h-screen px-4 py-6 md:px-8 md:py-10">
         <ColorBendsBackground />
 
-        <section className="relative z-10 mx-auto max-w-5xl">
+        <section className="relative z-10 mx-auto max-w-6xl">
           <div className="rounded-[30px] border border-red-400/20 bg-red-500/10 p-10 text-center text-red-100 shadow-2xl shadow-black/20 backdrop-blur-xl">
             {error || 'Проект не найден'}
           </div>
@@ -67,8 +67,8 @@ export default function EditProjectPage() {
     <main className="relative min-h-screen px-4 py-6 md:px-8 md:py-10">
       <ColorBendsBackground />
 
-      <section className="relative z-10 mx-auto max-w-5xl">
-        <div className="fade-up mb-8 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8">
+      <section className="relative z-10 mx-auto max-w-6xl">
+        <div className="fade-up mb-8 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8">
           <a
             href={`/projects/${project.id}`}
             className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white"

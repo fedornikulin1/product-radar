@@ -3,8 +3,10 @@ import {
   createProject,
   getProjects,
   isProjectPublic,
+  setProjectBitrixDealId,
   toPublicProject,
 } from '@/lib/projectsStore';
+import { syncProjectToBitrix } from '@/lib/bitrix24';
 import { verifyAdminToken } from '@/utils/auth';
 
 type SortField = 'created_at' | 'title';
@@ -13,8 +15,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
 
   const search = searchParams.get('search')?.toLowerCase() || '';
-  const category = searchParams.get('category') || '';
-  const status = searchParams.get('status') || '';
+  const categories = searchParams
+    .getAll('category')
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const statuses = searchParams
+    .getAll('status')
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim())
+    .filter(Boolean);
   const sort = searchParams.get('sort') || 'created_at.desc';
 
   let projects = await getProjects();
@@ -37,14 +47,14 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  if (category) {
+  if (categories.length > 0) {
     projects = projects.filter((project) =>
-      project.categories.includes(category),
+      categories.some((category) => project.categories.includes(category)),
     );
   }
 
-  if (status) {
-    projects = projects.filter((project) => project.status === status);
+  if (statuses.length > 0) {
+    projects = projects.filter((project) => statuses.includes(project.status));
   }
 
   const [requestedField, requestedDirection] = sort.split('.');
@@ -77,7 +87,17 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
 
-  const project = await createProject(body);
+  let project = await createProject(body);
+  const bitrixResult = await syncProjectToBitrix(project);
+
+  if (bitrixResult?.dealId) {
+    project =
+      (await setProjectBitrixDealId(
+        project.id,
+        bitrixResult.dealId,
+        bitrixResult.companyId,
+      )) || project;
+  }
 
   return NextResponse.json(project, { status: 201 });
 }

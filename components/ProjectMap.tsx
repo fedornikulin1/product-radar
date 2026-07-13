@@ -118,7 +118,7 @@ export default function ProjectMap({ projects }: { projects: Project[] }) {
   }
 
   return (
-    <section className="fade-up rounded-[34px] border border-white/10 bg-black/30 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl md:p-6">
+    <section className="fade-up rounded-[34px] border border-white/10 bg-black/40 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl md:p-6">
       <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <div className="mb-2 inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white/55">
@@ -165,7 +165,7 @@ export default function ProjectMap({ projects }: { projects: Project[] }) {
         </div>
       </div>
 
-      <div className="mb-5 rounded-[26px] border border-white/10 bg-white/[0.04] p-3 md:p-4">
+      <div className="mb-5 rounded-[26px] border border-white/10 bg-black/30 p-3 md:p-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
           <div className="relative">
             <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-white/35">
@@ -178,7 +178,7 @@ export default function ProjectMap({ projects }: { projects: Project[] }) {
                 setSelectedCity('');
               }}
               placeholder="Найти проект, город или технологию..."
-              className="h-12 w-full rounded-2xl border border-white/10 bg-black/25 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#5227FF]/70 focus:bg-black/40"
+              className="h-12 w-full rounded-2xl border border-white/10 bg-black/35 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#5227FF]/70 focus:bg-black/40"
             />
           </div>
 
@@ -281,7 +281,7 @@ export default function ProjectMap({ projects }: { projects: Project[] }) {
       </div>
 
       {filteredProjects.length === 0 ? (
-        <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-8 text-center text-white/60">
+        <div className="rounded-[28px] border border-white/10 bg-black/35 p-8 text-center text-white/60">
           <div className="text-lg font-bold text-white">Проекты не найдены</div>
           <p className="mt-2 text-sm text-white/50">
             Измени поисковый запрос или сбрось выбранные фильтры.
@@ -387,7 +387,7 @@ function MapCanvas({
           ))}
       </div>
 
-      <div className="absolute bottom-3 left-4 rounded-full border border-white/10 bg-black/50 px-3 py-1.5 text-[10px] text-white/35 backdrop-blur">
+      <div className="absolute bottom-3 left-4 rounded-full border border-white/10 bg-black/40 px-3 py-1.5 text-[10px] text-white/35 backdrop-blur">
         Границы улусов: Wikimedia Commons, CC BY-SA 2.5
       </div>
     </div>
@@ -507,7 +507,7 @@ function CityPanel({
 }) {
   if (!selectedCity) {
     return (
-      <div className="flex min-h-[260px] items-center justify-center rounded-[28px] border border-white/10 bg-white/[0.06] p-6 text-center lg:min-h-[620px]">
+      <div className="flex min-h-[260px] items-center justify-center rounded-[28px] border border-white/10 bg-black/35 p-6 text-center lg:min-h-[620px]">
         <div className="max-w-64">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#7cff67]/25 bg-[#7cff67]/10 text-2xl text-[#7cff67]">
             ⌖
@@ -524,12 +524,12 @@ function CityPanel({
   }
 
   return (
-    <div className="max-h-[620px] overflow-y-auto rounded-[28px] border border-white/10 bg-white/[0.06] p-3 custom-scrollbar">
+    <div className="max-h-[620px] overflow-y-auto rounded-[28px] border border-white/10 bg-black/35 p-3 custom-scrollbar">
       <div className="space-y-3">
         {groups.map((group) => (
           <div
             key={group.cityKey}
-            className="rounded-2xl border border-white/10 bg-black/20 p-4"
+            className="rounded-2xl border border-white/10 bg-black/25 p-4"
           >
             <button
               type="button"
@@ -575,7 +575,7 @@ function CityList({
       {groups.map((group) => (
         <section
           key={group.cityKey}
-          className="rounded-[28px] border border-white/10 bg-white/[0.06] p-4"
+          className="rounded-[28px] border border-white/10 bg-black/35 p-4"
         >
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
@@ -610,7 +610,7 @@ function ProjectMapRow({ project }: { project: Project }) {
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="block rounded-xl border border-white/10 bg-white/[0.04] p-3 transition hover:bg-white/10"
+      className="block rounded-xl border border-white/10 bg-black/30 p-3 transition hover:bg-white/10"
     >
       <div className="flex items-start gap-3">
         {project.logo_url ? (
@@ -702,7 +702,7 @@ function MapMetric({
   value: string | number;
 }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-2 text-xs">
+    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-3 py-2 text-xs">
       <span className="text-white/40">{label}</span>
       <span className="font-black text-white">{value}</span>
     </div>

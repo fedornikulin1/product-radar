@@ -32,6 +32,7 @@ import {
   PRICE_OPTIONS,
   PROJECT_CATEGORIES,
   READINESS_OPTIONS,
+  STATUS_OPTIONS,
   TEAM_ROLE_SUGGESTIONS,
   audienceTypeLabels,
   cooperationNeedLabels,
@@ -42,6 +43,7 @@ import {
   placementTypeLabels,
   priceLabels,
   readinessLabels,
+  statusLabels,
 } from '@/lib/projectOptions';
 
 function makeClientId() {
@@ -66,7 +68,6 @@ const crmSchema = z.object({
   notes: z.string().default(''),
   last_contact_at: z.string().default(''),
   next_action: z.string().default(''),
-  show_public: z.boolean().default(true),
 });
 
 const schema = z.object({
@@ -114,7 +115,6 @@ const schema = z.object({
     .or(z.literal(''))
     .default(''),
 
-  team: z.string().optional().default(''),
   technologies: z.string().optional().default(''),
 
   status: z.enum(['developing', 'completed', 'paused']).default('developing'),
@@ -181,7 +181,6 @@ const schema = z.object({
     notes: '',
     last_contact_at: '',
     next_action: '',
-    show_public: true,
   }),
 });
 
@@ -216,7 +215,6 @@ const emptyValues: FormValues = {
   gallery_urls: [],
   video_url: '',
 
-  team: '',
   technologies: '',
 
   status: 'developing',
@@ -246,7 +244,6 @@ const emptyValues: FormValues = {
     notes: '',
     last_contact_at: '',
     next_action: '',
-    show_public: true,
   },
 };
 
@@ -312,7 +309,6 @@ function mapProjectToFormValues(project?: Project): FormValues {
     gallery_urls: project.gallery_urls || [],
     video_url: project.video_url || '',
 
-    team: project.team || '',
     technologies: project.technologies || '',
 
     status: project.status || 'developing',
@@ -344,7 +340,6 @@ function mapProjectToFormValues(project?: Project): FormValues {
       notes: project.crm?.notes || '',
       last_contact_at: project.crm?.last_contact_at || '',
       next_action: project.crm?.next_action || '',
-      show_public: project.crm?.show_public ?? true,
     },
   };
 }
@@ -356,6 +351,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingPresentation, setUploadingPresentation] = useState(false);
   const [presentationFileName, setPresentationFileName] = useState('');
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([...PROJECT_CATEGORIES]);
   const [submitError, setSubmitError] = useState('');
 
   const initialValues = useMemo<FormValues>(
@@ -396,6 +392,27 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       shouldValidate: false,
     });
   }, [readinessScore, setValue]);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/categories');
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        const loadedCategories = Array.isArray(data) ? data : [];
+        const projectCategories = project?.categories || [];
+        setCategoryOptions(
+          Array.from(new Set([...PROJECT_CATEGORIES, ...loadedCategories, ...projectCategories])),
+        );
+      } catch {
+        setCategoryOptions([...PROJECT_CATEGORIES]);
+      }
+    }
+
+    loadCategories();
+  }, [project?.categories]);
 
   async function uploadFile(file: File) {
     const formData = new FormData();
@@ -519,7 +536,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
     const payload: ProjectFormData = {
       ...data,
-      status: 'developing',
+      status: data.status || 'developing',
       team_members: (data.team_members || [])
         .filter((member) => member.name || member.role || member.bio)
         .map((member) => ({
@@ -543,7 +560,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         notes: data.crm?.notes || '',
         last_contact_at: data.crm?.last_contact_at || '',
         next_action: data.crm?.next_action || '',
-        show_public: data.crm?.show_public ?? true,
       },
     };
 
@@ -598,10 +614,8 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="fade-up mx-auto max-w-4xl space-y-6 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8"
+      className="fade-up mx-auto max-w-6xl space-y-6 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8"
     >
-      <input type="hidden" {...register('status')} />
-
       {submitError && (
         <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm font-medium text-red-100">
           {submitError}
@@ -634,7 +648,28 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('short_description')}
       />
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid items-start gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <Select
+              label="Статус проекта"
+              hint="Показывается на карточке проекта: в разработке, завершён или на паузе."
+              required
+              error={errors.status?.message}
+              value={field.value}
+              onChange={field.onChange}
+            >
+              {STATUS_OPTIONS.map((status) => (
+                <option key={status} value={status}>
+                  {statusLabels[status]}
+                </option>
+              ))}
+            </Select>
+          )}
+        />
+
         <Controller
           control={control}
           name="investment_stage"
@@ -667,7 +702,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                 required
               />
 
-              <div className="flex min-h-[58px] flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.06] p-2">
+              <div className="flex min-h-[58px] flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/35 p-2">
                 {PLACEMENT_TYPE_OPTIONS.map((type) => {
                   const active = field.value.includes(type);
 
@@ -750,7 +785,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         )}
       />
 
-      <div className="grid gap-5 md:grid-cols-3">
+      <div className="grid items-start gap-5 md:grid-cols-3">
         <Input
           label="Email"
           hint="Обязательное поле."
@@ -776,7 +811,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
       </div>
 
-      <div className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <FieldLabel
           label="Презентация"
           hint="Необязательное поле. Можно загрузить PDF/PPT/PPTX/ODP/KEY до 25 МБ или вставить прямую ссылку."
@@ -784,7 +819,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
 
         {presentationUrl ? (
-          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+          <div className="mb-4 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-4">
             <a
               href={presentationUrl}
               target="_blank"
@@ -812,7 +847,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           </div>
         ) : null}
 
-        <div className="grid gap-4 md:grid-cols-[1fr_280px]">
+        <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
           {hasUploadedPresentation ? (
             <div>
               <FieldLabel
@@ -851,7 +886,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             <label
               htmlFor="presentation-upload"
               aria-disabled={uploadingPresentation}
-              className={`flex min-h-[58px] items-center justify-center rounded-2xl border px-5 text-center text-sm font-bold shadow-lg shadow-black/10 transition ${
+              className={`flex h-[58px] items-center justify-center rounded-2xl border px-5 text-center text-sm font-bold shadow-lg shadow-black/10 transition ${
                 uploadingPresentation
                   ? 'cursor-wait border-white/10 bg-white/70 text-slate-500'
                   : 'cursor-pointer border-white/10 bg-white/95 text-slate-950 hover:bg-white'
@@ -873,11 +908,11 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         </div>
       </div>
 
-      <div className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <FieldLabel
           label="Логотип"
-          hint="Обязательное поле. Рекомендуется 512×512, PNG/SVG/JPG, до 10 МБ."
-          required
+          hint="Необязательное поле. Если логотипа нет, карточка покажет аккуратную заглушку с первой буквой проекта."
+          optional
         />
 
         {logoUrl && (
@@ -911,11 +946,20 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             label="Категории"
             hint="Обязательное поле. Можно выбрать до 3 категорий."
             required
-            options={PROJECT_CATEGORIES}
+            options={categoryOptions}
             value={field.value}
             max={3}
             onChange={field.onChange}
+            onAddOption={(option) =>
+              setCategoryOptions((currentOptions) =>
+                currentOptions.includes(option)
+                  ? currentOptions
+                  : [...currentOptions, option],
+              )
+            }
             error={errors.categories?.message}
+            searchable
+            allowCustom
           />
         )}
       />
@@ -980,7 +1024,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('additional')}
       />
 
-      <div className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <FieldLabel
           label="Галерея"
           hint="Необязательное поле. До 6 изображений. Рекомендуется 1200×800, JPG/PNG/WebP, до 10 МБ каждое."
@@ -1032,15 +1076,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         )}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <Textarea
-          label="Команда — кратко"
-          hint="Необязательное поле. Краткое текстовое описание команды."
-          optional
-          error={errors.team?.message}
-          {...register('team')}
-        />
-
+      <div>
         <Textarea
           label="Технологии"
           hint="Необязательное поле. Например: Next.js, Node.js, PostgreSQL."
@@ -1050,7 +1086,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
       </div>
 
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <section className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <FieldLabel
@@ -1079,7 +1115,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         </div>
 
         {fields.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-4 text-sm text-white/45">
+          <div className="rounded-2xl border border-dashed border-white/10 bg-black/25 p-4 text-sm text-white/45">
             Пока не добавлено ни одного участника.
           </div>
         ) : (
@@ -1087,7 +1123,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                className="rounded-2xl border border-white/10 bg-black/30 p-4"
               >
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="text-sm font-black text-white">
@@ -1184,7 +1220,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
       </section>
 
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <section className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <FieldLabel
@@ -1223,7 +1259,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         />
       </section>
 
-      <section className="rounded-[26px] border border-white/10 bg-white/[0.06] p-5">
+      <section className="rounded-[26px] border border-white/10 bg-black/35 p-5">
         <Controller
           control={control}
           name="cooperation_needs"
@@ -1364,28 +1400,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           {...register('crm.notes')}
         />
 
-        <Controller
-          control={control}
-          name="crm.show_public"
-          render={({ field }) => (
-            <label className="mt-2 flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <input
-                type="checkbox"
-                checked={field.value}
-                onChange={(event) => field.onChange(event.target.checked)}
-                className="h-4 w-4 accent-[#5227FF]"
-              />
-              <div>
-                <div className="text-sm font-bold text-white">
-                  Разрешить публичный показ
-                </div>
-                <div className="mt-1 text-xs text-white/45">
-                  Проект появится на главной и у инвесторов только когда выбран статус «Готов к показу» и включён этот переключатель.
-                </div>
-              </div>
-            </label>
-          )}
-        />
       </section>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -1508,7 +1522,7 @@ function Input({
       />
 
       <input
-        className={`w-full rounded-2xl border px-5 py-4 text-slate-950 outline-none transition placeholder:text-slate-400 ${
+        className={`h-[58px] w-full rounded-2xl border px-5 text-slate-950 outline-none transition placeholder:text-slate-400 ${
           error
             ? 'border-red-400 bg-red-50 focus:border-red-500'
             : 'border-white/10 bg-white/95 focus:border-[#5227FF]'
@@ -1596,7 +1610,7 @@ function Select({
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`w-full rounded-2xl border px-5 py-4 text-slate-950 outline-none transition ${
+        className={`h-[58px] w-full rounded-2xl border px-5 text-slate-950 outline-none transition ${
           error
             ? 'border-red-400 bg-red-50 focus:border-red-500'
             : 'border-white/10 bg-white/95 focus:border-[#5227FF]'
@@ -1623,6 +1637,9 @@ function CheckboxGroup({
   required,
   optional,
   labelsMap,
+  searchable,
+  allowCustom,
+  onAddOption,
 }: {
   label: string;
   options: readonly string[];
@@ -1634,7 +1651,19 @@ function CheckboxGroup({
   required?: boolean;
   optional?: boolean;
   labelsMap?: Record<string, string>;
+  searchable?: boolean;
+  allowCustom?: boolean;
+  onAddOption?: (option: string) => void;
 }) {
+  const [search, setSearch] = useState('');
+  const [customValue, setCustomValue] = useState('');
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredOptions = normalizedSearch
+    ? options.filter((option) =>
+        (labelsMap?.[option] ?? option).toLowerCase().includes(normalizedSearch),
+      )
+    : options;
+
   function toggle(option: string) {
     const exists = value.includes(option);
 
@@ -1650,12 +1679,30 @@ function CheckboxGroup({
     onChange([...value, option]);
   }
 
+  function addCustomOption() {
+    const option = customValue.trim();
+
+    if (!option || value.includes(option)) {
+      setCustomValue('');
+      return;
+    }
+
+    if (max && value.length >= max) {
+      return;
+    }
+
+    onAddOption?.(option);
+    onChange([...value, option]);
+    setCustomValue('');
+    setSearch('');
+  }
+
   return (
     <div
       className={`rounded-[26px] border p-5 ${
         error
           ? 'border-red-400/30 bg-red-500/5'
-          : 'border-white/10 bg-white/[0.06]'
+          : 'border-white/10 bg-black/35'
       }`}
     >
       <FieldLabel
@@ -1665,8 +1712,49 @@ function CheckboxGroup({
         optional={optional}
       />
 
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => {
+      {searchable && (
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Поиск категории..."
+          className="mb-3 w-full rounded-2xl border border-white/10 bg-white/95 px-4 py-3 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#5227FF]"
+        />
+      )}
+
+      {allowCustom && (
+        <div className="mb-3 grid gap-2 sm:grid-cols-[1fr_auto]">
+          <input
+            value={customValue}
+            onChange={(event) => setCustomValue(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                addCustomOption();
+              }
+            }}
+            placeholder="Добавить новую категорию..."
+            className="rounded-2xl border border-white/10 bg-white/95 px-4 py-3 text-sm font-medium text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#5227FF]"
+          />
+
+          <button
+            type="button"
+            onClick={addCustomOption}
+            disabled={!customValue.trim() || Boolean(max && value.length >= max)}
+            className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Добавить
+          </button>
+        </div>
+      )}
+
+      <div
+        className={
+          searchable
+            ? 'custom-scrollbar grid max-h-64 gap-2 overflow-y-auto pr-1 sm:grid-cols-2'
+            : 'flex flex-wrap gap-2'
+        }
+      >
+        {filteredOptions.map((option) => {
           const active = value.includes(option);
 
           return (
@@ -1676,8 +1764,8 @@ function CheckboxGroup({
               onClick={() => toggle(option)}
               className={
                 active
-                  ? 'rounded-full border border-[#5227FF] bg-[#5227FF] px-4 py-2 text-sm font-bold text-white shadow-lg shadow-indigo-950/20'
-                  : 'rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white'
+                  ? 'rounded-2xl border border-[#5227FF] bg-[#5227FF] px-4 py-2.5 text-left text-sm font-bold text-white shadow-lg shadow-indigo-950/20'
+                  : 'rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white'
               }
             >
               {labelsMap?.[option] ?? option}
@@ -1685,6 +1773,12 @@ function CheckboxGroup({
           );
         })}
       </div>
+
+      {filteredOptions.length === 0 && (
+        <p className="rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white/50">
+          Категории не найдены.
+        </p>
+      )}
 
       {max ? (
         <p className="mt-2 text-xs text-white/40">

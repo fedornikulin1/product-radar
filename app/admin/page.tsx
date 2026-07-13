@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [exportingBitrix, setExportingBitrix] = useState(false);
 
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -32,29 +33,80 @@ export default function AdminPage() {
     router.refresh();
   }
 
+  async function fetchProjectsData() {
+    const res = await fetch('/api/projects?sort=created_at.desc');
+
+    if (!res.ok) {
+      throw new Error('Не удалось загрузить проекты');
+    }
+
+    return await res.json();
+  }
+
+  async function loadProjects() {
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await fetchProjectsData();
+      setProjects(data);
+    } catch {
+      setError('Ошибка загрузки админки');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
-    async function loadProjects() {
+    let ignore = false;
+
+    async function loadInitialProjects() {
       setLoading(true);
       setError('');
 
       try {
-        const res = await fetch('/api/projects?sort=created_at.desc');
+        const data = await fetchProjectsData();
 
-        if (!res.ok) {
-          throw new Error('Не удалось загрузить проекты');
+        if (!ignore) {
+          setProjects(data);
         }
-
-        const data = await res.json();
-        setProjects(data);
       } catch {
-        setError('Ошибка загрузки админки');
+        if (!ignore) {
+          setError('Ошибка загрузки админки');
+        }
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }
 
-    loadProjects();
+    loadInitialProjects();
+
+    return () => {
+      ignore = true;
+    };
   }, []);
+
+  async function handleBitrixExport() {
+    setExportingBitrix(true);
+
+    try {
+      const res = await fetch('/api/bitrix24/export', {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        throw new Error('Не удалось отправить проекты в Битрикс');
+      }
+
+      await loadProjects();
+    } catch {
+      alert('Не удалось отправить проекты в Битрикс');
+    } finally {
+      setExportingBitrix(false);
+    }
+  }
 
   async function handleDelete(id: string) {
     const confirmed = confirm('Удалить проект?');
@@ -95,11 +147,17 @@ export default function AdminPage() {
         return false;
       }
 
-      if (visibilityFilter === 'public' && project.crm?.show_public === false) {
+      if (
+        visibilityFilter === 'public' &&
+        project.crm?.status !== 'ready_for_showcase'
+      ) {
         return false;
       }
 
-      if (visibilityFilter === 'hidden' && project.crm?.show_public !== false) {
+      if (
+        visibilityFilter === 'hidden' &&
+        project.crm?.status === 'ready_for_showcase'
+      ) {
         return false;
       }
 
@@ -109,7 +167,7 @@ export default function AdminPage() {
 
       if (
         missingTeamOnly &&
-        ((project.team_members?.length || 0) > 0 || Boolean(project.team))
+        (project.team_members?.length || 0) > 0
       ) {
         return false;
       }
@@ -136,9 +194,9 @@ export default function AdminPage() {
       total: projects.length,
       highPriority: projects.filter((p) => p.crm?.priority === 'high').length,
       noDeck: projects.filter((p) => !p.presentation_url).length,
-      noTeam: projects.filter((p) => !(p.team_members?.length || p.team)).length,
+      noTeam: projects.filter((p) => !p.team_members?.length).length,
       lowReadiness: projects.filter((p) => (p.readiness_score || 0) < 50).length,
-      hidden: projects.filter((p) => p.crm?.show_public === false).length,
+      hidden: projects.filter((p) => p.crm?.status !== 'ready_for_showcase').length,
     };
   }, [projects]);
 
@@ -147,7 +205,7 @@ export default function AdminPage() {
       <ColorBendsBackground />
 
       <section className="relative z-10 mx-auto max-w-7xl">
-        <header className="mb-8 rounded-[34px] border border-white/10 bg-black/25 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
+        <header className="mb-8 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="mb-5 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-white/90">
@@ -167,22 +225,25 @@ export default function AdminPage() {
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/admin/new"
-                className="inline-flex items-center justify-center rounded-2xl bg-[#5227FF] px-5 py-3 text-sm font-black text-white shadow-lg shadow-[#5227FF]/15 transition hover:bg-indigo-500"
+                className="inline-flex h-12 min-w-40 items-center justify-center rounded-2xl bg-[#5227FF] px-5 text-sm font-black text-white shadow-lg shadow-[#5227FF]/15 transition hover:bg-indigo-500"
               >
                 Добавить проект
               </Link>
 
-              <Link
-                href="/investors"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white"
+              <button
+                type="button"
+                onClick={handleBitrixExport}
+                disabled={exportingBitrix}
+                title="Отправить текущие проекты сайта в сделки и компании Битрикс24"
+                className="inline-flex h-12 min-w-44 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 text-sm font-black text-white/75 transition hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-60"
               >
-                Investor view
-              </Link>
+                {exportingBitrix ? 'Отправка...' : 'В Битрикс'}
+              </button>
 
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-normal text-white/60 transition hover:bg-white/10 hover:text-white"
+                className="inline-flex h-12 min-w-32 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 text-sm font-normal text-white/60 transition hover:bg-white/10 hover:text-white"
               >
                 Выйти
               </button>
@@ -200,7 +261,7 @@ export default function AdminPage() {
         </header>
 
         <section className="mb-8 rounded-[30px] border border-white/10 bg-black/35 p-4 text-white shadow-2xl shadow-black/25 backdrop-blur-2xl">
-          <div className="grid gap-4 lg:grid-cols-[1fr_220px_220px_220px]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_220px_220px_220px] lg:items-end">
             <div>
               <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/45">
                 Поиск
@@ -209,7 +270,7 @@ export default function AdminPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Название, описание, город..."
-                className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
+                className="h-12 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
               />
             </div>
 
@@ -247,7 +308,7 @@ export default function AdminPage() {
             />
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <ToggleChip
               checked={missingDeckOnly}
               onChange={setMissingDeckOnly}
@@ -267,7 +328,7 @@ export default function AdminPage() {
         </section>
 
         {loading && (
-          <div className="rounded-[28px] border border-white/10 bg-black/25 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-black/35 p-10 text-center text-white/70 shadow-2xl shadow-black/20 backdrop-blur-xl">
             Загружаем проекты...
           </div>
         )}
@@ -279,10 +340,10 @@ export default function AdminPage() {
         )}
 
         {!loading && !error && (
-          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black/25 shadow-2xl shadow-black/20 backdrop-blur-xl">
+          <div className="overflow-hidden rounded-[28px] border border-white/10 bg-black/35 shadow-2xl shadow-black/20 backdrop-blur-xl">
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-white">
-                <thead className="border-b border-white/10 bg-white/[0.04]">
+                <thead className="border-b border-white/10 bg-black/30">
                   <tr>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Проект</th>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Стадия</th>
@@ -297,10 +358,10 @@ export default function AdminPage() {
                   {filteredProjects.map((project) => (
                     <tr
                       key={project.id}
-                      className="border-b border-white/10 align-top last:border-b-0"
+                      className="border-b border-white/10 align-middle last:border-b-0"
                     >
                       <td className="px-5 py-5">
-                        <div className="flex gap-4">
+                        <div className="flex min-h-20 items-center gap-4">
                           {project.logo_url ? (
                             <Image
                               src={project.logo_url}
@@ -331,7 +392,7 @@ export default function AdminPage() {
                       </td>
 
                       <td className="px-5 py-5">
-                        <div className="rounded-full border border-[#5227FF]/30 bg-[#5227FF]/15 px-3 py-1 text-xs font-black text-violet-100">
+                        <div className="inline-flex min-h-8 items-center rounded-full border border-[#5227FF]/30 bg-[#5227FF]/15 px-3 py-1 text-xs font-black text-violet-100">
                           {investmentStageLabels[project.investment_stage]}
                         </div>
                       </td>
@@ -354,8 +415,8 @@ export default function AdminPage() {
                         <span
                           className={
                             project.presentation_url
-                              ? 'rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
-                              : 'rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/60'
+                              ? 'inline-flex min-h-8 items-center rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
+                              : 'rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-black text-white/60'
                           }
                         >
                           {project.presentation_url ? 'Есть' : 'Нет'}
@@ -367,43 +428,45 @@ export default function AdminPage() {
                           <div
   className={
     project.crm?.priority === 'high'
-      ? 'rounded-full border border-red-300/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-100'
+      ? 'inline-flex min-h-8 items-center rounded-full border border-red-300/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-100'
       : project.crm?.priority === 'medium'
-        ? 'rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
-        : 'rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/75'
+        ? 'inline-flex min-h-8 items-center rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
+        : 'inline-flex min-h-8 items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-black text-white/75'
   }
 >
   {crmPriorityLabels[project.crm?.priority || 'medium']}
 </div>
 
-                          <div className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-black text-white/75">
+                          <div className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-black text-white/75">
                             {crmStatusLabels[project.crm?.status || 'draft']}
                           </div>
 
                           <div
                             className={
-                              project.crm?.show_public === false
-                                ? 'rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
-                                : 'rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
+                              project.crm?.status === 'ready_for_showcase'
+                                ? 'inline-flex min-h-8 items-center rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100'
+                                : 'inline-flex min-h-8 items-center rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs font-black text-amber-100'
                             }
                           >
-                            {project.crm?.show_public === false ? 'Скрыт' : 'Публичный'}
+                            {project.crm?.status === 'ready_for_showcase'
+                              ? 'Публичный'
+                              : 'Скрыт'}
                           </div>
                         </div>
                       </td>
 
                       <td className="px-5 py-5">
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-col gap-2">
                           <Link
                             href={`/projects/${project.id}`}
-                            className="rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/20"
+                            className="inline-flex h-10 w-40 items-center justify-center rounded-xl border border-white/10 bg-white/10 px-4 text-sm font-bold text-white/80 transition hover:bg-white/20"
                           >
                             Открыть
                           </Link>
 
                           <Link
                             href={`/admin/edit/${project.id}`}
-                            className="rounded-xl bg-[#5227FF] px-4 py-2 text-sm font-black text-white transition hover:bg-indigo-500"
+                            className="inline-flex h-10 w-40 items-center justify-center rounded-xl bg-[#5227FF] px-4 text-sm font-black text-white transition hover:bg-indigo-500"
                           >
                             Редактировать
                           </Link>
@@ -411,7 +474,7 @@ export default function AdminPage() {
                           <button
                             type="button"
                             onClick={() => handleDelete(project.id)}
-                            className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white transition hover:bg-red-400"
+                            className="inline-flex h-10 w-40 items-center justify-center rounded-xl bg-red-500 px-4 text-sm font-black text-white transition hover:bg-red-400"
                           >
                             Удалить
                           </button>
@@ -467,7 +530,7 @@ function FilterSelect({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-14 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
+        className="h-12 w-full rounded-2xl border border-white/10 bg-white/95 px-4 text-base font-medium text-slate-950 outline-none transition focus:border-[#5227FF]"
       >
         <option value="">Все</option>
         {options.map((item) => (
@@ -495,8 +558,8 @@ function ToggleChip({
       onClick={() => onChange(!checked)}
       className={
         checked
-          ? 'rounded-full border border-[#5227FF]/40 bg-[#5227FF]/25 px-4 py-2 text-sm font-black text-white'
-          : 'rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
+          ? 'inline-flex h-11 items-center justify-center rounded-2xl border border-[#5227FF]/40 bg-[#5227FF]/25 px-4 text-sm font-black text-white'
+          : 'inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 px-4 text-sm font-bold text-white/75 transition hover:bg-white/20 hover:text-white'
       }
     >
       {label}
@@ -512,7 +575,7 @@ function StatCard({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
+    <div className="flex min-h-24 flex-col justify-between rounded-2xl border border-white/10 bg-black/30 p-4">
       <div className="text-2xl font-black text-white">{value}</div>
       <div className="mt-1 text-sm text-white/55">{label}</div>
     </div>
