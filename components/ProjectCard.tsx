@@ -46,7 +46,7 @@ export default function ProjectCard({
   const cooperationNeeds = (project.cooperation_needs || []).slice(0, 2);
 
   return (
-    <div className="h-full rounded-[28px] border border-white/15 bg-slate-950/58 shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-300 hover:border-cyan-200/25 hover:bg-slate-950/66">
+    <div className="h-full rounded-[28px] border border-white/15 bg-slate-950/58 shadow-2xl shadow-black/20 backdrop-blur-xl transition duration-300 hover:scale-[1.025] hover:border-cyan-200/25 hover:bg-slate-950/66 hover:shadow-cyan-950/30">
       <Link
         href={`/projects/${project.id}`}
         scroll={true}
