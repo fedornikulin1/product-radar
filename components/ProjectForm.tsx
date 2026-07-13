@@ -908,7 +908,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             />
           )}
 
-          <div>
+          <div className="flex h-full flex-col">
             <FieldLabel
               label="Файл презентации"
               hint="Можно загрузить файл вместо внешней ссылки."
@@ -931,7 +931,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             <label
               htmlFor="presentation-upload"
               aria-disabled={uploadingPresentation}
-              className={`flex h-[58px] items-center justify-center rounded-2xl border px-5 text-center text-sm font-bold shadow-lg shadow-black/10 transition ${
+              className={`mt-auto flex h-[58px] items-center justify-center rounded-2xl border px-5 text-center text-sm font-bold shadow-lg shadow-black/10 transition ${
                 uploadingPresentation
                   ? 'cursor-wait border-white/10 bg-white/70 text-slate-500'
                   : 'cursor-pointer border-white/10 bg-white/95 text-slate-950 hover:bg-white'
