@@ -175,7 +175,7 @@ export default function ProjectPage() {
       <PageReveal delay={0}>
         <div className="relative text-white">
           <div className="grid gap-4 xl:grid-cols-[1fr_360px]">
-            <MainBlock project={project} />
+            <MainBlock project={project} isAdmin={isAdmin} />
             <SidebarBlock project={project} isAdmin={isAdmin} />
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function ProjectPage() {
   );
 }
 
-function MainBlock({ project }: { project: Project }) {
+function MainBlock({ project, isAdmin }: { project: Project; isAdmin: boolean }) {
   const investmentStage = project.investment_stage || 'pre_seed';
   const audienceTypes = getAudienceTypes(project);
   const placementTypes = getPlacementTypes(project);
@@ -338,9 +338,12 @@ function MainBlock({ project }: { project: Project }) {
 
       <Divider />
 
-      <ReadinessSection project={project} />
-
-      <Divider />
+      {isAdmin && (
+        <>
+          <ReadinessSection project={project} />
+          <Divider />
+        </>
+      )}
 
       <section className="grid gap-4 md:grid-cols-2">
         <TextCard
@@ -427,10 +430,12 @@ function SidebarBlock({
             }
           />
 
-          <SideInfoLine
-            label="Готовность"
-            value={`${project.readiness_score || 0}%`}
-          />
+          {isAdmin && (
+            <SideInfoLine
+              label="Заполненность карточки"
+              value={`${project.readiness_score || 0}%`}
+            />
+          )}
 
           <SideInfoLine
             label="Локация"
@@ -502,10 +507,10 @@ function ReadinessSection({ project }: { project: Project }) {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-black text-white">
-            Готовность проекта
+            Заполненность карточки
           </h3>
           <p className="mt-1 text-sm text-white/50">
-            Чек-лист зрелости проекта для команды и инвесторов.
+            Внутренний показатель для админов: насколько заполнена карточка.
           </p>
         </div>
 
@@ -539,7 +544,7 @@ function ReadinessSection({ project }: { project: Project }) {
         </div>
       ) : (
         <p className="text-sm text-white/45">
-          Готовность проекта пока не заполнена.
+          Чек-лист пока не заполнен.
         </p>
       )}
     </section>

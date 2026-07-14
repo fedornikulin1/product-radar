@@ -11,6 +11,8 @@ export default function SiteHeader() {
 
   const [aboutMounted, setAboutMounted] = useState(false);
   const [aboutVisible, setAboutVisible] = useState(false);
+  const [contactsMounted, setContactsMounted] = useState(false);
+  const [contactsVisible, setContactsVisible] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -84,6 +86,24 @@ export default function SiteHeader() {
     };
   }, [aboutMounted]);
 
+  useEffect(() => {
+    if (!contactsMounted) return;
+
+    function handleEsc(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        closeContacts();
+      }
+    }
+
+    document.addEventListener('keydown', handleEsc);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [contactsMounted]);
+
   function openAbout() {
     setAboutMounted(true);
 
@@ -99,6 +119,24 @@ export default function SiteHeader() {
 
     setTimeout(() => {
       setAboutMounted(false);
+    }, 220);
+  }
+
+  function openContacts() {
+    setContactsMounted(true);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setContactsVisible(true);
+      });
+    });
+  }
+
+  function closeContacts() {
+    setContactsVisible(false);
+
+    setTimeout(() => {
+      setContactsMounted(false);
     }, 220);
   }
 
@@ -170,6 +208,14 @@ export default function SiteHeader() {
                   className={navItemClass}
                 >
                   О нас
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openContacts}
+                  className={navItemClass}
+                >
+                  Контакты
                 </button>
 
                 {isAdmin && (
@@ -286,6 +332,57 @@ export default function SiteHeader() {
           </div>
         </div>
       )}
+
+      {contactsMounted && (
+        <div
+          className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition duration-200 ${
+            contactsVisible ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={closeContacts}
+        >
+          <div
+            className={`w-full max-w-3xl rounded-[34px] border border-white/10 bg-black/75 p-6 text-white shadow-2xl shadow-black/30 backdrop-blur-2xl transition duration-200 md:p-9 ${
+              contactsVisible
+                ? 'translate-y-0 scale-100 opacity-100'
+                : 'translate-y-4 scale-[0.98] opacity-0'
+            }`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-5">
+              <div>
+                <div className="inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white/55">
+                  Контакты
+                </div>
+
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-white md:text-5xl">
+                  Связаться с корпорацией
+                </h2>
+
+                <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/65">
+                  По вопросам проектов, инвестиций и партнёрства можно написать
+                  или перейти на официальный сайт.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={closeContacts}
+                aria-label="Закрыть окно"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-lg font-normal text-white/80 transition hover:bg-white/20 hover:text-white"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-7 grid gap-4 md:grid-cols-2">
+              <ContactCard title="Телефон" href="tel:+74112506295" value="+7 (4112) 50-62-95" />
+              <ContactCard title="Email" href="mailto:info@corp-sakha.ru" value="info@corp-sakha.ru" />
+              <ContactCard title="Адрес" href="https://go.2gis.com/SBUvT" value="г. Якутск, ул. Труда, 1" external />
+              <ContactCard title="Официальный сайт" href="https://yakutiacorp.ru/" value="yakutiacorp.ru" external />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
@@ -304,5 +401,33 @@ function AboutCard({
         {text}
       </div>
     </div>
+  );
+}
+
+function ContactCard({
+  title,
+  value,
+  href,
+  external = false,
+}: {
+  title: string;
+  value: string;
+  href: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+      className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 transition hover:-translate-y-0.5 hover:bg-white/[0.1]"
+    >
+      <div className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
+        {title}
+      </div>
+      <div className="mt-2 text-lg font-bold text-white/85">
+        {value}
+      </div>
+    </a>
   );
 }

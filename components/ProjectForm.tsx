@@ -25,7 +25,6 @@ import {
   COMMUNITY_STATUSES,
   COOPERATION_NEED_OPTIONS,
   CRM_PRIORITY_OPTIONS,
-  CRM_STATUS_OPTIONS,
   INVESTMENT_STAGE_OPTIONS,
   PLACEMENT_TYPE_OPTIONS,
   PRICE_OPTIONS,
@@ -36,7 +35,6 @@ import {
   audienceTypeLabels,
   cooperationNeedLabels,
   crmPriorityLabels,
-  crmStatusLabels,
   investmentStageLabels,
   placementTypeLabels,
   priceLabels,
@@ -654,6 +652,52 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           {submitError}
         </div>
       )}
+
+      <Controller
+        control={control}
+        name="crm.status"
+        render={({ field }) => (
+          <section className="rounded-[26px] border border-emerald-300/15 bg-emerald-300/5 p-5">
+            <FieldLabel
+              label="Показ проекта"
+              hint="Публичный проект виден на сайте, скрытый доступен только в админке."
+              required
+            />
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => field.onChange('ready_for_showcase')}
+                className={
+                  field.value === 'ready_for_showcase'
+                    ? 'rounded-2xl border border-emerald-300/35 bg-emerald-300/20 px-5 py-4 text-left font-black text-emerald-50 shadow-lg shadow-emerald-950/20'
+                    : 'rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-left font-bold text-white/70 transition hover:bg-white/10 hover:text-white'
+                }
+              >
+                <span className="block text-base">Публичный</span>
+                <span className="mt-1 block text-sm font-medium opacity-70">
+                  Показывать на главной и у инвесторов.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => field.onChange('internal_review')}
+                className={
+                  field.value === 'internal_review'
+                    ? 'rounded-2xl border border-amber-300/35 bg-amber-300/15 px-5 py-4 text-left font-black text-amber-50 shadow-lg shadow-amber-950/20'
+                    : 'rounded-2xl border border-white/10 bg-black/30 px-5 py-4 text-left font-bold text-white/70 transition hover:bg-white/10 hover:text-white'
+                }
+              >
+                <span className="block text-base">Скрытый</span>
+                <span className="mt-1 block text-sm font-medium opacity-70">
+                  Видно только администраторам.
+                </span>
+              </button>
+            </div>
+          </section>
+        )}
+      />
 
       <div className="grid gap-5 md:grid-cols-2">
         <Input
@@ -1273,14 +1317,14 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <FieldLabel
-              label="Готовность проекта"
-              hint="Отметь, что уже подготовлено. Процент посчитается автоматически."
+              label="Заполненность карточки"
+              hint="Внутренний показатель для админов. Процент считается по заполненным полям."
               optional
             />
           </div>
 
           <div className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-sm font-black text-emerald-100">
-            Готовность: {readinessScore}%
+            Заполнено: {readinessScore}%
           </div>
         </div>
 
@@ -1374,7 +1418,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
             />
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-1">
             <Controller
               control={control}
               name="crm.priority"
@@ -1389,26 +1433,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                   {CRM_PRIORITY_OPTIONS.map((item) => (
                     <option key={item} value={item}>
                       {crmPriorityLabels[item]}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="crm.status"
-              render={({ field }) => (
-                <Select
-                  label="CRM статус"
-                  hint="Готов к показу — проект появится публично."
-                  optional
-                  value={field.value}
-                  onChange={field.onChange}
-                >
-                  {CRM_STATUS_OPTIONS.map((item) => (
-                    <option key={item} value={item}>
-                      {crmStatusLabels[item]}
                     </option>
                   ))}
                 </Select>

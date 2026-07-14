@@ -114,11 +114,9 @@ export default function HomePage() {
       .filter(Boolean),
   ).size;
 
-  const stagesCount = new Set(
-    projects
-      .map((item) => item.investment_stage)
-      .filter(Boolean),
-  ).size;
+  const projectsWithContacts = projects.filter(
+    (item) => item.telegram || item.contact_email || item.contact_phone,
+  ).length;
 
   const filteredCategories = useMemo(() => {
     const query = categorySearch.trim().toLowerCase();
@@ -175,35 +173,20 @@ export default function HomePage() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs font-black uppercase tracking-[0.18em] text-white/35">
-                    Product Snapshot
+                    Навигатор
                   </div>
 
                   <div className="mt-2 text-2xl font-black text-white">
-                    Быстрый обзор платформы
+                    Быстрый обзор проектов
                   </div>
-                </div>
-
-                <div className="rounded-full border border-[#5227FF]/40 bg-[#5227FF]/20 px-3 py-1 text-xs font-black text-violet-100">
-                  Investor-ready
                 </div>
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <StatCard value={projects.length} label="Проектов" />
                 <StatCard value={citiesCount} label="Городов" />
-                <StatCard value={stagesCount} label="Стадий" />
-                <StatCard value="B2B / B2C / B2G" label="Форматы" />
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-white/10 bg-black/30 p-4">
-                <div className="text-sm font-black text-white">
-                  Что внутри
-                </div>
-
-                <p className="mt-2 text-sm leading-relaxed text-white/65">
-                  Карточки проектов, карта по городам, стадии развития,
-                  презентации, контакты команд.
-                </p>
+                <StatCard value={projectsWithContacts} label="С контактами" />
+                <StatCard value="24/7" label="Доступ к витрине" />
               </div>
             </div>
           </div>

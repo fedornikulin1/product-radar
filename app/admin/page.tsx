@@ -8,7 +8,6 @@ import ColorBendsBackground from '@/components/effects/ColorBendsBackground';
 import { Project } from '@/types/project';
 import {
   crmPriorityLabels,
-  crmStatusLabels,
   investmentStageLabels,
 } from '@/lib/projectOptions';
 
@@ -22,7 +21,6 @@ export default function AdminPage() {
 
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
-  const [crmStatusFilter, setCrmStatusFilter] = useState('');
   const [visibilityFilter, setVisibilityFilter] = useState('');
   const [missingDeckOnly, setMissingDeckOnly] = useState(false);
   const [missingTeamOnly, setMissingTeamOnly] = useState(false);
@@ -163,10 +161,6 @@ export default function AdminPage() {
         return false;
       }
 
-      if (crmStatusFilter && project.crm?.status !== crmStatusFilter) {
-        return false;
-      }
-
       if (
         visibilityFilter === 'public' &&
         project.crm?.status !== 'ready_for_showcase'
@@ -202,7 +196,6 @@ export default function AdminPage() {
     projects,
     search,
     priorityFilter,
-    crmStatusFilter,
     visibilityFilter,
     missingDeckOnly,
     missingTeamOnly,
@@ -237,7 +230,8 @@ export default function AdminPage() {
               </h1>
 
               <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/72">
-                Управление проектами, CRM-статусами, готовностью, материалами и
+                Управление проектами, видимостью, заполненностью карточек,
+                материалами и
                 внутренними приоритетами.
               </p>
             </div>
@@ -281,7 +275,7 @@ export default function AdminPage() {
             <StatCard value={stats.highPriority} label="High priority" />
             <StatCard value={stats.noDeck} label="Без презентации" />
             <StatCard value={stats.noTeam} label="Без команды" />
-            <StatCard value={stats.lowReadiness} label="Низкая готовность" />
+            <StatCard value={stats.lowReadiness} label="Низкая заполненность" />
             <StatCard value={stats.hidden} label="Скрытые" />
           </div>
         </header>
@@ -312,16 +306,6 @@ export default function AdminPage() {
             />
 
             <FilterSelect
-              label="CRM статус"
-              value={crmStatusFilter}
-              onChange={setCrmStatusFilter}
-              options={[
-                { value: 'internal_review', label: 'Внутренний просмотр' },
-                { value: 'ready_for_showcase', label: 'Готов к показу' },
-              ]}
-            />
-
-            <FilterSelect
               label="Видимость"
               value={visibilityFilter}
               onChange={setVisibilityFilter}
@@ -346,7 +330,7 @@ export default function AdminPage() {
             <ToggleChip
               checked={lowReadinessOnly}
               onChange={setLowReadinessOnly}
-              label="Готовность < 50%"
+              label="Заполненность < 50%"
             />
           </div>
         </section>
@@ -371,7 +355,7 @@ export default function AdminPage() {
                   <tr>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Проект</th>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Стадия</th>
-                    <th className="px-5 py-4 text-sm font-black text-white/65">Готовность</th>
+                    <th className="px-5 py-4 text-sm font-black text-white/65">Заполненность</th>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Deck</th>
                     <th className="px-5 py-4 text-sm font-black text-white/65">CRM</th>
                     <th className="px-5 py-4 text-sm font-black text-white/65">Действия</th>
@@ -460,10 +444,6 @@ export default function AdminPage() {
 >
   {crmPriorityLabels[project.crm?.priority || 'medium']}
 </div>
-
-                          <div className="inline-flex min-h-8 items-center rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-black text-white/75">
-                            {crmStatusLabels[project.crm?.status || 'internal_review']}
-                          </div>
 
                           <div
                             className={

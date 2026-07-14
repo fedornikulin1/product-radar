@@ -36,10 +36,10 @@ export default function SiteFooter() {
           </FooterColumn>
 
           <FooterColumn title="Социальные сети">
-            <SocialLink href="https://yakutiacorp.ru/" shortName="WEB">Официальный сайт</SocialLink>
-            <SocialLink href="https://vk.com/yakutiacorp" shortName="VK">ВКонтакте</SocialLink>
-            <SocialLink href="https://t.me/yakutiacorp" shortName="TG">Telegram</SocialLink>
-            <SocialLink href="https://max.ru/id1435289661_gos" shortName="MAX">MAX</SocialLink>
+            <SocialLink href="https://yakutiacorp.ru/" icon="🌐">Официальный сайт</SocialLink>
+            <SocialLink href="https://vk.com/yakutiacorp" icon="VK">ВКонтакте</SocialLink>
+            <SocialLink href="https://t.me/yakutiacorp" icon="✈">Telegram</SocialLink>
+            <SocialLink href="https://max.ru/id1435289661_gos" icon="M">MAX</SocialLink>
           </FooterColumn>
         </div>
 
@@ -93,19 +93,19 @@ function ContactLink({
       rel={external ? 'noreferrer' : undefined}
       className="group block text-sm"
     >
-      <span className="block text-[11px] uppercase tracking-[0.14em] text-white/30">{label}</span>
-      <span className="mt-1 block leading-relaxed text-white/60 transition group-hover:text-white">{children}</span>
+      <span className="block text-[11px] uppercase tracking-[0.14em] text-white/50">{label}</span>
+      <span className="mt-1 block leading-relaxed text-white/82 transition group-hover:text-white">{children}</span>
     </a>
   );
 }
 
 function SocialLink({
   href,
-  shortName,
+  icon,
   children,
 }: {
   href: string;
-  shortName: string;
+  icon: string;
   children: React.ReactNode;
 }) {
   return (
@@ -113,10 +113,10 @@ function SocialLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="group flex items-center gap-3 text-sm text-white/55 transition hover:text-white"
+      className="group flex items-center gap-3 text-sm text-white/65 transition hover:text-white"
     >
-      <span className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] px-2 text-[10px] font-bold text-white/75 transition group-hover:bg-white/12 group-hover:text-white">
-        {shortName}
+      <span className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-white/15 bg-white/[0.08] px-2 text-[11px] font-black text-white/85 transition group-hover:bg-white/15 group-hover:text-white">
+        {icon}
       </span>
       {children}
     </a>

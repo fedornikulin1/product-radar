@@ -54,7 +54,6 @@ export default function InvestorsPage() {
   const [need, setNeed] = useState<CooperationNeed | ''>('');
   const [presentationOnly, setPresentationOnly] = useState(false);
   const [teamOnly, setTeamOnly] = useState(false);
-  const [minReadiness, setMinReadiness] = useState(0);
 
   useEffect(() => {
     async function loadProjects() {
@@ -106,8 +105,6 @@ export default function InvestorsPage() {
         if (!hasTeam) return false;
       }
 
-      if ((project.readiness_score || 0) < minReadiness) return false;
-
       return true;
     });
   }, [
@@ -118,24 +115,15 @@ export default function InvestorsPage() {
     need,
     presentationOnly,
     teamOnly,
-    minReadiness,
   ]);
 
   const stats = useMemo(() => {
     const withPresentation = filteredProjects.filter((p) => Boolean(p.presentation_url)).length;
-    const avgReadiness = filteredProjects.length
-      ? Math.round(
-          filteredProjects.reduce(
-            (sum, project) => sum + (project.readiness_score || 0),
-            0,
-          ) / filteredProjects.length,
-        )
-      : 0;
 
     return {
       count: filteredProjects.length,
       withPresentation,
-      avgReadiness,
+      withTeam: filteredProjects.filter((p) => Boolean(p.team_members?.length)).length,
     };
   }, [filteredProjects]);
 
@@ -146,7 +134,6 @@ export default function InvestorsPage() {
     setNeed('');
     setPresentationOnly(false);
     setTeamOnly(false);
-    setMinReadiness(0);
   }
 
   return (
@@ -167,8 +154,8 @@ export default function InvestorsPage() {
                 </h1>
 
                 <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/72">
-                  Быстрый обзор проектов компании: стадии, рынок, материалы,
-                  команда, готовность и запросы по сотрудничеству.
+                  Быстрый обзор проектов компании: рынок, материалы, команда,
+                  инвестиционный запрос и варианты сотрудничества.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -191,7 +178,7 @@ export default function InvestorsPage() {
               <div className="grid gap-3 sm:grid-cols-3">
                 <StatCard value={stats.count} label="Подходящих проектов" />
                 <StatCard value={stats.withPresentation} label="С презентацией" />
-                <StatCard value={`${stats.avgReadiness}%`} label="Средняя готовность" />
+                <StatCard value={stats.withTeam} label="С командой" />
               </div>
             </div>
           </header>
@@ -205,7 +192,6 @@ export default function InvestorsPage() {
                 onClick={() => {
                   setNeed('investment');
                   setPresentationOnly(true);
-                  setMinReadiness(40);
                 }}
                 className="rounded-full border border-[#5227FF]/35 bg-[#5227FF]/20 px-4 py-2 text-sm font-black text-white transition hover:bg-[#5227FF]/30"
               >
@@ -217,7 +203,6 @@ export default function InvestorsPage() {
                 onClick={() => {
                   setNeed('pilot');
                   setPresentationOnly(false);
-                  setMinReadiness(30);
                 }}
                 className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white"
               >
@@ -275,29 +260,7 @@ export default function InvestorsPage() {
               />
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto_auto] lg:items-end">
-              <div>
-                <div className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-white/45">
-                  Минимальная готовность
-                </div>
-
-                <div className="flex items-center gap-4">
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={10}
-                    value={minReadiness}
-                    onChange={(e) => setMinReadiness(Number(e.target.value))}
-                    className="w-full accent-[#5227FF]"
-                  />
-
-                  <div className="min-w-[64px] rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center text-sm font-black text-white">
-                    {minReadiness}%
-                  </div>
-                </div>
-              </div>
-
+            <div className="mt-4 grid gap-4 lg:grid-cols-[auto_auto] lg:items-end">
               <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm font-bold text-white/80">
                 <input
                   type="checkbox"
