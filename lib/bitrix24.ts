@@ -89,8 +89,33 @@ let cachedDealFieldMap: Map<string, BitrixUserField> | null = null;
 
 const deprecatedDealFieldCodes = ['READINESS', 'CRM_STATUS'];
 
+const categoryBitrixCodes: Record<string, string> = {
+  Образование: 'education',
+  Финансы: 'finance',
+  ИИ: 'ai',
+  Медицина: 'medicine',
+  Игры: 'games',
+  Соцсети: 'social',
+  Инструменты: 'tools',
+  Туризм: 'tourism',
+  'Транспорт и логистика': 'transport_logistics',
+  Промышленность: 'industry',
+  Энергетика: 'energy',
+  'Сельское хозяйство': 'agriculture',
+  Строительство: 'construction',
+  Экология: 'ecology',
+  'Культура и медиа': 'culture_media',
+  'Торговля и услуги': 'commerce_services',
+  'Государственные сервисы': 'government_services',
+  Другое: 'other',
+};
+
+const categoryLabelsByBitrixCode = Object.fromEntries(
+  Object.entries(categoryBitrixCodes).map(([label, code]) => [code, label]),
+);
+
 const categoryOptions = PROJECT_CATEGORIES.map((category) => ({
-  value: category,
+  value: categoryBitrixCodes[category] || category,
   label: category,
 }));
 
@@ -363,7 +388,7 @@ function getDealCustomFields(
     [getFieldName('SITE_ID')]: project.id,
     [getFieldName('SHORT_DESCRIPTION')]: project.short_description,
     [getFieldName('FULL_DESCRIPTION')]: project.full_description,
-    [getFieldName('CATEGORIES')]: toBitrixFieldValue('CATEGORIES', project.categories, fieldMap),
+    [getFieldName('CATEGORIES')]: toBitrixFieldValue('CATEGORIES', mapProjectCategoriesForBitrix(project.categories), fieldMap),
     [getFieldName('SHOWCASE_STATUS')]: toBitrixFieldValue('SHOWCASE_STATUS', project.crm?.status || 'internal_review', fieldMap),
     [getFieldName('PROJECT_STATUS')]: toBitrixFieldValue('PROJECT_STATUS', project.status, fieldMap),
     [getFieldName('INVEST_STAGE')]: toBitrixFieldValue('INVEST_STAGE', project.investment_stage, fieldMap),
@@ -692,10 +717,18 @@ function normalizePlacementTypes(value: string): PlacementType[] {
   return items.length ? items : ['saas'];
 }
 
+function mapProjectCategoriesForBitrix(categories: string[]) {
+  return categories
+    .map((category) => categoryBitrixCodes[category])
+    .filter(Boolean);
+}
+
 function normalizeCategories(value: string) {
   const allowedCategories = new Set<string>(PROJECT_CATEGORIES);
 
-  return splitList(value).filter((category) => allowedCategories.has(category));
+  return splitList(value)
+    .map((category) => categoryLabelsByBitrixCode[category] || category)
+    .filter((category) => allowedCategories.has(category));
 }
 
 function stripProjectPrefix(title: string) {
