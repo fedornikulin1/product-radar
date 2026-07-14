@@ -1458,36 +1458,40 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
       </section>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Input
-          label="Страна"
-          hint="Начните вводить страну или выберите из списка."
-          optional
-          list="country-suggestions"
-          error={errors.country?.message}
-          {...register('country')}
+        <Controller
+          control={control}
+          name="country"
+          render={({ field }) => (
+            <ComboboxInput
+              label="Страна"
+              hint="Начните вводить страну или выберите из списка."
+              optional
+              value={field.value || ''}
+              onChange={field.onChange}
+              options={COUNTRY_SUGGESTIONS}
+              placeholder="Россия"
+              error={errors.country?.message}
+            />
+          )}
         />
 
-        <Input
-          label="Город"
-          hint="Начните вводить город или населённый пункт."
-          optional
-          list="city-suggestions"
-          error={errors.city?.message}
-          {...register('city')}
+        <Controller
+          control={control}
+          name="city"
+          render={({ field }) => (
+            <ComboboxInput
+              label="Город"
+              hint="Начните вводить город или населённый пункт."
+              optional
+              value={field.value || ''}
+              onChange={field.onChange}
+              options={CITY_SUGGESTIONS}
+              placeholder="Якутск"
+              error={errors.city?.message}
+            />
+          )}
         />
       </div>
-
-      <datalist id="country-suggestions">
-        {COUNTRY_SUGGESTIONS.map((country) => (
-          <option key={country} value={country} />
-        ))}
-      </datalist>
-
-      <datalist id="city-suggestions">
-        {CITY_SUGGESTIONS.map((city) => (
-          <option key={city} value={city} />
-        ))}
-      </datalist>
 
       <div className="flex flex-wrap gap-3 pt-4">
         <button
@@ -1602,6 +1606,111 @@ function Input({
         }`}
         {...props}
       />
+
+      {error && (
+        <p className="mt-2 text-sm font-medium text-red-200">{error}</p>
+      )}
+    </div>
+  );
+}
+
+function ComboboxInput({
+  label,
+  value,
+  onChange,
+  options,
+  error,
+  hint,
+  required,
+  optional,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: readonly string[];
+  error?: string;
+  hint?: string;
+  required?: boolean;
+  optional?: boolean;
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const normalizedValue = value.trim().toLowerCase();
+  const filteredOptions = normalizedValue
+    ? options.filter((option) => option.toLowerCase().includes(normalizedValue))
+    : options;
+
+  return (
+    <div className="relative">
+      <FieldLabel
+        label={label}
+        hint={hint}
+        required={required}
+        optional={optional}
+      />
+
+      <div className="relative">
+        <input
+          value={value}
+          onChange={(event) => {
+            onChange(event.target.value);
+            setOpen(true);
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => {
+            window.setTimeout(() => setOpen(false), 120);
+          }}
+          placeholder={placeholder}
+          className={`h-[58px] w-full rounded-2xl border px-5 pr-12 text-slate-950 outline-none transition placeholder:text-slate-400 ${
+            error
+              ? 'border-red-400 bg-red-50 focus:border-red-500'
+              : 'border-white/10 bg-white/95 focus:border-[#5227FF]'
+          }`}
+        />
+
+        <button
+          type="button"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setOpen((current) => !current);
+          }}
+          className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          aria-label="Открыть список"
+        >
+          ⌄
+        </button>
+      </div>
+
+      {open && (
+        <div className="absolute left-0 right-0 top-full z-[90] mt-2 max-h-64 overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/96 p-2 text-white shadow-2xl shadow-black/30 backdrop-blur-xl">
+          {filteredOptions.length > 0 ? (
+            filteredOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  onChange(option);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-bold transition ${
+                  option === value
+                    ? 'bg-[#5227FF] text-white'
+                    : 'text-white/75 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                <span>{option}</span>
+                {option === value && <span className="text-xs">✓</span>}
+              </button>
+            ))
+          ) : (
+            <div className="rounded-xl px-4 py-3 text-sm text-white/50">
+              Нет в списке — можно оставить введённое значение.
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <p className="mt-2 text-sm font-medium text-red-200">{error}</p>
