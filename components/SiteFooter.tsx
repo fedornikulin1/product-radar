@@ -36,10 +36,20 @@ export default function SiteFooter() {
           </FooterColumn>
 
           <FooterColumn title="Социальные сети">
-            <SocialLink href="https://yakutiacorp.ru/" icon="🌐">Официальный сайт</SocialLink>
-            <SocialLink href="https://vk.com/yakutiacorp" icon="VK">ВКонтакте</SocialLink>
-            <SocialLink href="https://t.me/yakutiacorp" icon="✈">Telegram</SocialLink>
-            <SocialLink href="https://max.ru/id1435289661_gos" icon="M">MAX</SocialLink>
+            <div className="flex flex-wrap gap-3">
+              <SocialIconLink href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="vk" />
+              <SocialIconLink href="https://t.me/yakutiacorp" label="Telegram" icon="telegram" />
+              <SocialIconLink href="https://max.ru/id1435289661_gos" label="MAX" icon="max" />
+            </div>
+
+            <a
+              href="https://yakutiacorp.ru/"
+              target="_blank"
+              rel="noreferrer"
+              className={footerLinkClass}
+            >
+              Официальный сайт
+            </a>
           </FooterColumn>
         </div>
 
@@ -99,26 +109,49 @@ function ContactLink({
   );
 }
 
-function SocialLink({
+function SocialIconLink({
   href,
   icon,
-  children,
+  label,
 }: {
   href: string;
-  icon: string;
-  children: React.ReactNode;
+  icon: 'vk' | 'telegram' | 'max';
+  label: string;
 }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="group flex items-center gap-3 text-sm text-white/65 transition hover:text-white"
+      aria-label={label}
+      title={label}
+      className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-slate-800/85 text-white shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-slate-700"
     >
-      <span className="flex h-9 min-w-9 items-center justify-center rounded-xl border border-white/15 bg-white/[0.08] px-2 text-[11px] font-black text-white/85 transition group-hover:bg-white/15 group-hover:text-white">
-        {icon}
-      </span>
-      {children}
+      <SocialIcon icon={icon} />
     </a>
+  );
+}
+
+function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' }) {
+  if (icon === 'vk') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
+        <path d="M12.7 17.2c-5.3 0-8.4-3.6-8.6-9.6h2.7c.1 4.4 2 6.3 3.4 6.7V7.6h2.6v3.8c1.4-.2 2.8-1.9 3.3-3.8h2.6c-.4 2.3-2.2 4-3.4 4.7 1.2.6 3.1 2.1 3.9 4.9h-2.9c-.5-1.8-1.8-3.2-3.5-3.5v3.5h-.1Z" />
+      </svg>
+    );
+  }
+
+  if (icon === 'telegram') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
+        <path d="M20.9 4.6 17.8 19c-.2 1-.8 1.2-1.6.8l-4.4-3.2-2.1 2c-.2.2-.4.4-.9.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2L6.6 13.3l-4.4-1.4c-1-.3-1-1 .2-1.5L19.5 3.8c.8-.3 1.5.2 1.4.8Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
+      <path d="M6.2 6.4c1.7-1.5 3.6-2.2 5.8-2.2s4.1.7 5.8 2.2c1.6 1.5 2.5 3.3 2.5 5.4s-.8 3.9-2.5 5.4c-1.7 1.5-3.6 2.2-5.8 2.2-1.1 0-2.1-.2-3-.5l-3.4 1.4.8-3.3c-1.8-1.5-2.7-3.2-2.7-5.3 0-2 .8-3.8 2.5-5.3Zm2.3 8.3h1.9v-4.1l1.6 2.4 1.6-2.4v4.1h1.9V8.6h-1.9L12 11.2l-1.6-2.6H8.5v6.1Z" />
+    </svg>
   );
 }

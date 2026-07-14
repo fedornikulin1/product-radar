@@ -114,8 +114,12 @@ export default function HomePage() {
       .filter(Boolean),
   ).size;
 
-  const projectsWithContacts = projects.filter(
-    (item) => item.telegram || item.contact_email || item.contact_phone,
+  const projectsWithPresentation = projects.filter(
+    (item) => Boolean(item.presentation_url),
+  ).length;
+
+  const projectsLookingForInvestment = projects.filter((item) =>
+    (item.cooperation_needs || []).includes('investment'),
   ).length;
 
   const filteredCategories = useMemo(() => {
@@ -137,10 +141,6 @@ export default function HomePage() {
           <header className="mb-8 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-10">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div>
-              <div className="mb-6 inline-flex rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-medium text-white/90 backdrop-blur">
-                Каталог проектов, MVP и стартапов
-              </div>
-
               <h1 className="text-5xl font-black tracking-tight text-white md:text-7xl">
                 Навигатор проектов
               </h1>
@@ -185,8 +185,8 @@ export default function HomePage() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
                 <StatCard value={projects.length} label="Проектов" />
                 <StatCard value={citiesCount} label="Городов" />
-                <StatCard value={projectsWithContacts} label="С контактами" />
-                <StatCard value="24/7" label="Доступ к витрине" />
+                <StatCard value={projectsWithPresentation} label="С презентацией" />
+                <StatCard value={projectsLookingForInvestment} label="Ищут инвестиции" />
               </div>
             </div>
           </div>
