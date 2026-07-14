@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [exportingBitrix, setExportingBitrix] = useState(false);
+  const [bitrixMessage, setBitrixMessage] = useState('');
 
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
@@ -90,19 +91,38 @@ export default function AdminPage() {
 
   async function handleBitrixExport() {
     setExportingBitrix(true);
+    setBitrixMessage('');
 
     try {
       const res = await fetch('/api/bitrix24/export', {
         method: 'POST',
       });
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error('Не удалось отправить проекты в Битрикс');
+        throw new Error(data.error || 'Не удалось отправить проекты в Битрикс');
       }
 
       await loadProjects();
-    } catch {
-      alert('Не удалось отправить проекты в Битрикс');
+      const message =
+        data.failed > 0
+          ? `В Битрикс отправлено: ${data.synced}/${data.total}. Ошибок: ${data.failed}.`
+          : `В Битрикс отправлено: ${data.synced}/${data.total}. Сделки обновлены.`;
+      const failed = (data.results || [])
+        .filter((item: { ok: boolean }) => !item.ok)
+        .map((item: { title: string; error?: string }) => `${item.title}: ${item.error}`)
+        .join('\n');
+
+      setBitrixMessage(message);
+      alert(failed ? `${message}\n\n${failed}` : message);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Не удалось отправить проекты в Битрикс';
+
+      setBitrixMessage(message);
+      alert(message);
     } finally {
       setExportingBitrix(false);
     }
@@ -249,6 +269,12 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
+
+          {bitrixMessage && (
+            <div className="mt-5 rounded-2xl border border-cyan-200/15 bg-cyan-300/10 px-4 py-3 text-sm font-bold text-cyan-50">
+              {bitrixMessage}
+            </div>
+          )}
 
           <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
             <StatCard value={stats.total} label="Всего проектов" />

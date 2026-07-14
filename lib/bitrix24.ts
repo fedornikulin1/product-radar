@@ -377,6 +377,7 @@ function getDealFields(
       '',
       `Категории: ${project.categories.join(', ') || 'не указаны'}`,
       `Город: ${project.city || 'не указан'}`,
+      `Инвестиции: ${project.investment_amount || 'сумма уточняется'}`,
       `Готовность: ${project.readiness_score || 0}%`,
       project.contact_email && `Email: ${project.contact_email}`,
       project.contact_phone && `Телефон: ${project.contact_phone}`,
