@@ -24,7 +24,6 @@ export default function SiteFooter() {
             <Link href="/#project-map" className={footerLinkClass}>Проекты</Link>
             <Link href="/investors" className={footerLinkClass}>Инвесторам</Link>
             <a href="https://yakutiacorp.ru/about/" target="_blank" rel="noreferrer" className={footerLinkClass}>О корпорации</a>
-            <Link href="/admin" className={footerLinkClass}>Админка</Link>
           </FooterColumn>
 
           <FooterColumn title="Контакты">

@@ -181,12 +181,12 @@ export default function HomePage() {
 
               <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
                 <div className="text-sm font-black text-white">
-                  Единая витрина инициатив
+                  Проекты для развития региона
                 </div>
 
                 <p className="mt-2 text-sm leading-relaxed text-white/65">
-                  Проекты можно быстро отфильтровать по направлению, статусу и
-                  запросам команды — без таблиц и лишней CRM-шумихи.
+                  Здесь собраны инициативы, которым нужны партнёры,
+                  инвестиции, пилотные площадки и экспертная поддержка.
                 </p>
               </div>
             </div>
