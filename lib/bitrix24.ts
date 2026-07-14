@@ -84,6 +84,7 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'SITE_ID', label: 'ID проекта на сайте', type: 'string', help: 'Служебное поле. Не менять вручную: по нему сайт связывает сделку с карточкой проекта.' },
   { code: 'SHORT_DESCRIPTION', label: 'Краткое описание', type: 'string', help: 'Короткий текст для карточки проекта на главной странице.' },
   { code: 'FULL_DESCRIPTION', label: 'Полное описание', type: 'string', help: 'Развёрнутое описание проекта для внутренней страницы.' },
+  { code: 'LOGO', label: 'Логотип проекта', type: 'string', help: 'Ссылка на логотип проекта. Если пусто, сайт покажет заглушку с первой буквой.' },
   { code: 'CATEGORIES', label: 'Категории', type: 'string', help: 'Можно указать несколько категорий через запятую. Например: ИИ, Образование.' },
   { code: 'PROJECT_STATUS', label: 'Статус проекта', type: 'enumeration', help: 'Публичный статус проекта на сайте.', list: [
     { value: 'developing', label: 'В разработке' },
@@ -119,6 +120,7 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'EMAIL', label: 'Email', type: 'string', help: 'Контактный email команды проекта.' },
   { code: 'PHONE', label: 'Телефон', type: 'string', help: 'Контактный телефон команды проекта.' },
   { code: 'PRESENTATION', label: 'Презентация', type: 'string', help: 'Ссылка на PDF/PPT/PPTX/ODP/KEY или путь к загруженному файлу.' },
+  { code: 'GALLERY', label: 'Галерея проекта', type: 'string', help: 'Ссылки на изображения через запятую.' },
   { code: 'VIDEO', label: 'Видео URL', type: 'string', help: 'Ссылка на видео проекта, например YouTube или Rutube.' },
   { code: 'COUNTRY', label: 'Страна', type: 'string', help: 'Страна проекта.' },
   { code: 'CITY', label: 'Город', type: 'string', help: 'Город или населённый пункт проекта.' },
@@ -133,7 +135,7 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'TEAM_MEMBERS', label: 'Команда проекта', type: 'string', help: 'Состав команды в свободном формате. Один участник — одна строка.' },
   { code: 'TEAM_ROLES', label: 'Открытые роли', type: 'string', help: 'Какие роли команда ищет. Можно перечислить через запятую.' },
   { code: 'READINESS_ITEMS', label: 'Чеклист готовности', type: 'string', help: 'Что уже готово у проекта: MVP, пилот, пользователи, выручка и т.д.' },
-  { code: 'READINESS', label: 'Готовность, %', type: 'integer', help: 'Процент готовности проекта от 0 до 100.' },
+  { code: 'READINESS', label: 'Заполненность карточки, %', type: 'integer', help: 'Внутренний процент заполненности карточки проекта от 0 до 100.' },
   { code: 'COOP_NEEDS', label: 'Запросы сотрудничества', type: 'string', help: 'Какая помощь нужна проекту. Можно перечислить через запятую.' },
   { code: 'COOP_OFFER', label: 'Что предлагает проект', type: 'string', help: 'Что проект готов предложить партнёрам или инвесторам.' },
   { code: 'CRM_OWNER', label: 'Ответственный внутри CRM', type: 'string', help: 'Кто ведёт проект внутри команды.' },
@@ -142,9 +144,9 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
     { value: 'medium', label: 'Средний' },
     { value: 'high', label: 'Высокий' },
   ] },
-  { code: 'CRM_STATUS', label: 'CRM статус сайта', type: 'enumeration', help: 'Статус публикации на сайте. Готов к показу — проект виден публично.', list: [
-    { value: 'internal_review', label: 'Внутренний просмотр' },
-    { value: 'ready_for_showcase', label: 'Готов к показу' },
+  { code: 'CRM_STATUS', label: 'Показ на сайте', type: 'enumeration', help: 'Публичный — проект виден на сайте. Скрытый — проект виден только в админке.', list: [
+    { value: 'internal_review', label: 'Скрытый' },
+    { value: 'ready_for_showcase', label: 'Публичный' },
   ] },
   { code: 'CRM_NOTES', label: 'Внутренние заметки', type: 'string', help: 'Внутренние заметки по проекту. Не показываются публично.' },
   { code: 'CRM_LAST_CONTACT', label: 'Последний контакт', type: 'string', help: 'Дата или комментарий о последнем контакте с командой.' },
@@ -548,41 +550,101 @@ function parseStageId(stageId: string): CRMStatus {
 }
 
 function normalizeProjectStatus(value: string): ProjectStatus {
-  return ['developing', 'completed', 'paused'].includes(value)
-    ? (value as ProjectStatus)
-    : 'developing';
+  const normalized = value.trim().toLowerCase();
+  const aliases: Record<string, ProjectStatus> = {
+    developing: 'developing',
+    'в разработке': 'developing',
+    completed: 'completed',
+    'завершён': 'completed',
+    'завершен': 'completed',
+    paused: 'paused',
+    'на паузе': 'paused',
+  };
+
+  return aliases[normalized] || 'developing';
 }
 
 function normalizeInvestmentStage(value: string): InvestmentStage {
-  return ['pre_seed', 'seed', 'startup', 'growth', 'expansion', 'exit'].includes(value)
-    ? (value as InvestmentStage)
-    : 'pre_seed';
+  const normalized = value.trim().toLowerCase();
+  const aliases: Record<string, InvestmentStage> = {
+    pre_seed: 'pre_seed',
+    'pre-seed': 'pre_seed',
+    seed: 'seed',
+    startup: 'startup',
+    growth: 'growth',
+    expansion: 'expansion',
+    exit: 'exit',
+  };
+
+  return aliases[normalized] || 'pre_seed';
 }
 
 function normalizePrice(value: string): ProjectPrice {
-  return ['free', 'freemium', 'trial', 'paid'].includes(value)
-    ? (value as ProjectPrice)
-    : 'free';
+  const normalized = value.trim().toLowerCase();
+  const aliases: Record<string, ProjectPrice> = {
+    free: 'free',
+    'бесплатно': 'free',
+    freemium: 'freemium',
+    'бесплатно + платные функции': 'freemium',
+    trial: 'trial',
+    'пробный период': 'trial',
+    paid: 'paid',
+    'платно': 'paid',
+  };
+
+  return aliases[normalized] || 'free';
 }
 
 function normalizeAudienceTypes(value: string): AudienceType[] {
-  const items = splitList(value).filter((item): item is AudienceType =>
-    ['b2b', 'b2c', 'b2g'].includes(item),
-  );
+  const items = splitList(value)
+    .map((item) => item.trim().toLowerCase())
+    .filter((item): item is AudienceType =>
+      ['b2b', 'b2c', 'b2g'].includes(item),
+    );
 
   return items.length ? items : ['b2b'];
 }
 
 function normalizePlacementTypes(value: string): PlacementType[] {
-  const items = splitList(value).filter((item): item is PlacementType =>
-    ['saas', 'on_premise'].includes(item),
-  );
+  const items = splitList(value)
+    .map((item) => {
+      const normalized = item.trim().toLowerCase();
+      if (normalized === 'on-premise' || normalized === 'on premise') {
+        return 'on_premise';
+      }
+      return normalized;
+    })
+    .filter((item): item is PlacementType =>
+      ['saas', 'on_premise'].includes(item),
+    );
 
   return items.length ? items : ['saas'];
 }
 
 function stripProjectPrefix(title: string) {
   return title.replace(/^\[Проект\]\s*/i, '').trim();
+}
+
+function safeText(value: string, fallback = '') {
+  const trimmed = value.trim();
+
+  if (!trimmed || /^[?\s]+$/.test(trimmed)) {
+    return fallback;
+  }
+
+  return trimmed;
+}
+
+function hasMinimumPublicData(project: {
+  short_description: string;
+  categories: string[];
+  contact_email: string;
+}) {
+  return Boolean(
+    project.short_description.trim() &&
+      project.categories.length > 0 &&
+      project.contact_email.trim(),
+  );
 }
 
 function getDealString(
@@ -632,15 +694,29 @@ function parseTeamMembers(value: string): ProjectFormData['team_members'] {
 }
 
 function normalizeCrmPriority(value: string): CRMInternalPriority {
-  return ['low', 'medium', 'high'].includes(value)
-    ? (value as CRMInternalPriority)
-    : 'medium';
+  const normalized = value.trim().toLowerCase();
+  const aliases: Record<string, CRMInternalPriority> = {
+    low: 'low',
+    'низкий': 'low',
+    medium: 'medium',
+    'средний': 'medium',
+    high: 'high',
+    'высокий': 'high',
+  };
+
+  return aliases[normalized] || 'medium';
 }
 
 function normalizeCrmStatus(value: string): CRMStatus {
-  return ['internal_review', 'ready_for_showcase'].includes(value)
-    ? (value as CRMStatus)
-    : 'internal_review';
+  const normalized = value.trim().toLowerCase();
+  const aliases: Record<string, CRMStatus> = {
+    internal_review: 'internal_review',
+    'внутренний просмотр': 'internal_review',
+    ready_for_showcase: 'ready_for_showcase',
+    'готов к показу': 'ready_for_showcase',
+  };
+
+  return aliases[normalized] || 'internal_review';
 }
 
 export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
@@ -675,11 +751,15 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       ? await callBitrix<BitrixCompany>('crm.company.get', { id: companyId })
       : null;
 
+    const dealTitle = safeText(
+      getString(deal.TITLE && stripProjectPrefix(String(deal.TITLE))),
+    );
     const title =
-      getString(deal.TITLE && stripProjectPrefix(String(deal.TITLE))) ||
-      company?.TITLE ||
-      '?????? ?? ???????24';
+      dealTitle ||
+      safeText(company?.TITLE || '') ||
+      `Проект из Битрикс24${deal.ID ? ` #${deal.ID}` : ''}`;
     const shortDescription = getDealString(deal, 'SHORT_DESCRIPTION', fieldMap);
+    const categories = splitList(getDealString(deal, 'CATEGORIES', fieldMap));
     const contactEmail =
       getDealString(deal, 'EMAIL', fieldMap) || firstMultiValue(company?.EMAIL);
     const contactPhone =
@@ -689,12 +769,20 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
     const link = getDealString(deal, 'LINK', fieldMap) || firstMultiValue(company?.WEB);
     const dealId = getNumber(deal.ID);
     const crmStatus = getDealString(deal, 'CRM_STATUS', fieldMap);
+    const importedCrmStatus = crmStatus
+      ? normalizeCrmStatus(crmStatus)
+      : parseStageId(getString(deal.STAGE_ID));
+    const publicReady = hasMinimumPublicData({
+      short_description: shortDescription,
+      categories,
+      contact_email: contactEmail,
+    });
 
     result.push({
       title,
-      short_description: shortDescription || getString(deal.COMMENTS),
+      short_description: safeText(shortDescription, 'Описание проекта уточняется.'),
       logo_url: getDealString(deal, 'LOGO', fieldMap),
-      categories: splitList(getDealString(deal, 'CATEGORIES', fieldMap)),
+      categories,
       price: normalizePrice(getDealString(deal, 'PRICE', fieldMap)),
       link,
       telegram,
@@ -728,8 +816,15 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       crm: {
         owner: getDealString(deal, 'CRM_OWNER', fieldMap),
         priority: normalizeCrmPriority(getDealString(deal, 'CRM_PRIORITY', fieldMap)),
-        status: crmStatus ? normalizeCrmStatus(crmStatus) : parseStageId(getString(deal.STAGE_ID)),
-        notes: getDealString(deal, 'CRM_NOTES', fieldMap) || `siteProjectId:${getDealString(deal, 'SITE_ID', fieldMap)}`,
+        status: publicReady ? importedCrmStatus : 'internal_review',
+        notes:
+          getDealString(deal, 'CRM_NOTES', fieldMap) ||
+          [
+            `siteProjectId:${getDealString(deal, 'SITE_ID', fieldMap)}`,
+            !publicReady && 'Импортировано скрытым: не заполнены обязательные публичные поля.',
+          ]
+            .filter(Boolean)
+            .join('\n'),
         last_contact_at: getDealString(deal, 'CRM_LAST_CONTACT', fieldMap),
         next_action: getDealString(deal, 'CRM_NEXT_ACTION', fieldMap),
         bitrix_deal_id: dealId || undefined,

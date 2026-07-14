@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [exportingBitrix, setExportingBitrix] = useState(false);
+  const [importingBitrix, setImportingBitrix] = useState(false);
   const [bitrixMessage, setBitrixMessage] = useState('');
 
   const [search, setSearch] = useState('');
@@ -123,6 +124,51 @@ export default function AdminPage() {
       alert(message);
     } finally {
       setExportingBitrix(false);
+    }
+  }
+
+  async function handleBitrixImport() {
+    const confirmed = confirm(
+      'Импортировать проекты из Битрикс24? Новые сделки добавятся на сайт, существующие обновятся.',
+    );
+
+    if (!confirmed) return;
+
+    setImportingBitrix(true);
+    setBitrixMessage('');
+
+    try {
+      const res = await fetch('/api/bitrix24/import', {
+        method: 'POST',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Не удалось импортировать проекты из Битрикс');
+      }
+
+      await loadProjects();
+      const message =
+        data.failed > 0
+          ? `Из Битрикс импортировано: создано ${data.created}, обновлено ${data.updated}, ошибок ${data.failed}.`
+          : `Из Битрикс импортировано: создано ${data.created}, обновлено ${data.updated}.`;
+      const failed = (data.results || [])
+        .filter((item: { ok: boolean }) => !item.ok)
+        .map((item: { title: string; error?: string }) => `${item.title}: ${item.error}`)
+        .join('\n');
+
+      setBitrixMessage(message);
+      alert(failed ? `${message}\n\n${failed}` : message);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Не удалось импортировать проекты из Битрикс';
+
+      setBitrixMessage(message);
+      alert(message);
+    } finally {
+      setImportingBitrix(false);
     }
   }
 
@@ -252,6 +298,16 @@ export default function AdminPage() {
                 className="inline-flex h-12 min-w-44 items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-5 text-sm font-black text-white/75 transition hover:bg-white/10 hover:text-white disabled:cursor-wait disabled:opacity-60"
               >
                 {exportingBitrix ? 'Отправка...' : 'В Битрикс'}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBitrixImport}
+                disabled={importingBitrix}
+                title="Забрать новые и обновлённые проекты из сделок Битрикс24"
+                className="inline-flex h-12 min-w-44 items-center justify-center rounded-2xl border border-cyan-200/15 bg-cyan-300/10 px-5 text-sm font-black text-cyan-50 transition hover:bg-cyan-300/15 disabled:cursor-wait disabled:opacity-60"
+              >
+                {importingBitrix ? 'Импорт...' : 'Из Битрикс'}
               </button>
 
               <button
