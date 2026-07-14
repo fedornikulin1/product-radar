@@ -36,20 +36,10 @@ export default function SiteFooter() {
           </FooterColumn>
 
           <FooterColumn title="Социальные сети">
-            <div className="flex flex-wrap gap-3">
-              <SocialIconLink href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="vk" />
-              <SocialIconLink href="https://t.me/yakutiacorp" label="Telegram" icon="telegram" />
-              <SocialIconLink href="https://max.ru/id1435289661_gos" label="MAX" icon="max" />
-            </div>
-
-            <a
-              href="https://yakutiacorp.ru/"
-              target="_blank"
-              rel="noreferrer"
-              className={footerLinkClass}
-            >
-              Официальный сайт
-            </a>
+            <SocialIconLink href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="vk" />
+            <SocialIconLink href="https://t.me/yakutiacorp" label="Telegram" icon="telegram" />
+            <SocialIconLink href="https://max.ru/id1435289661_gos" label="MAX" icon="max" />
+            <SocialIconLink href="https://yakutiacorp.ru/" label="Официальный сайт" icon="web" />
           </FooterColumn>
         </div>
 
@@ -115,7 +105,7 @@ function SocialIconLink({
   label,
 }: {
   href: string;
-  icon: 'vk' | 'telegram' | 'max';
+  icon: 'vk' | 'telegram' | 'max' | 'web';
   label: string;
 }) {
   return (
@@ -125,14 +115,17 @@ function SocialIconLink({
       rel="noreferrer"
       aria-label={label}
       title={label}
-      className="group flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-slate-800/85 text-white shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-slate-700"
+      className="group flex items-center gap-3 text-sm text-white/68 transition hover:text-white"
     >
-      <SocialIcon icon={icon} />
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-slate-800/85 text-white shadow-lg shadow-black/15 transition group-hover:-translate-y-0.5 group-hover:bg-slate-700">
+        <SocialIcon icon={icon} />
+      </span>
+      <span>{label}</span>
     </a>
   );
 }
 
-function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' }) {
+function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' | 'web' }) {
   if (icon === 'vk') {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
@@ -145,6 +138,15 @@ function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' }) {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
         <path d="M20.9 4.6 17.8 19c-.2 1-.8 1.2-1.6.8l-4.4-3.2-2.1 2c-.2.2-.4.4-.9.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2L6.6 13.3l-4.4-1.4c-1-.3-1-1 .2-1.5L19.5 3.8c.8-.3 1.5.2 1.4.8Z" />
+      </svg>
+    );
+  }
+
+  if (icon === 'web') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current stroke-[2]">
+        <circle cx="12" cy="12" r="8.5" />
+        <path d="M3.8 12h16.4M12 3.5c2.1 2.2 3.2 5 3.2 8.5s-1.1 6.3-3.2 8.5M12 3.5C9.9 5.7 8.8 8.5 8.8 12s1.1 6.3 3.2 8.5" />
       </svg>
     );
   }
