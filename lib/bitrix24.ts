@@ -1,6 +1,13 @@
 import 'server-only';
 
 import {
+  PROJECT_CATEGORIES,
+  cooperationNeedLabels,
+  priceLabels,
+  readinessLabels,
+  statusLabels,
+} from '@/lib/projectOptions';
+import {
   AudienceType,
   CRMInternalPriority,
   CRMStatus,
@@ -80,17 +87,57 @@ const stageCrmMap: Record<string, CRMStatus> = {
 const fieldPrefix = 'UF_CRM_PR_';
 let cachedDealFieldMap: Map<string, BitrixUserField> | null = null;
 
+const deprecatedDealFieldCodes = ['READINESS', 'CRM_STATUS'];
+
+const categoryOptions = PROJECT_CATEGORIES.map((category) => ({
+  value: category,
+  label: category,
+}));
+
+const projectStatusOptions: Array<{ value: ProjectStatus; label: string }> = [
+  'developing',
+  'completed',
+  'paused',
+].map((value) => {
+  const status = value as ProjectStatus;
+
+  return { value: status, label: statusLabels[status] };
+});
+
+const priceOptions: Array<{ value: ProjectPrice; label: string }> = [
+  'free',
+  'freemium',
+  'trial',
+  'paid',
+].map((value) => {
+  const price = value as ProjectPrice;
+
+  return { value: price, label: priceLabels[price] };
+});
+
+const readinessOptions = Object.entries(readinessLabels).map(([value, label]) => ({
+  value,
+  label,
+}));
+
+const cooperationNeedOptions = Object.entries(cooperationNeedLabels).map(
+  ([value, label]) => ({
+    value,
+    label,
+  }),
+);
+
 const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'SITE_ID', label: 'ID проекта на сайте', type: 'string', help: 'Служебное поле. Не менять вручную: по нему сайт связывает сделку с карточкой проекта.' },
   { code: 'SHORT_DESCRIPTION', label: 'Краткое описание', type: 'string', help: 'Короткий текст для карточки проекта на главной странице.' },
   { code: 'FULL_DESCRIPTION', label: 'Полное описание', type: 'string', help: 'Развёрнутое описание проекта для внутренней страницы.' },
   { code: 'LOGO', label: 'Логотип проекта', type: 'string', help: 'Ссылка на логотип проекта. Если пусто, сайт покажет заглушку с первой буквой.' },
-  { code: 'CATEGORIES', label: 'Категории', type: 'string', help: 'Можно указать несколько категорий через запятую. Например: ИИ, Образование.' },
-  { code: 'PROJECT_STATUS', label: 'Статус проекта', type: 'enumeration', help: 'Публичный статус проекта на сайте.', list: [
-    { value: 'developing', label: 'В разработке' },
-    { value: 'completed', label: 'Завершён' },
-    { value: 'paused', label: 'На паузе' },
+  { code: 'CATEGORIES', label: 'Категории', type: 'enumeration', help: 'Выберите одну или несколько категорий из списка сайта.', multiple: true, list: categoryOptions },
+  { code: 'SHOWCASE_STATUS', label: 'Показ на сайте', type: 'enumeration', help: 'Публичный — проект виден на сайте. Скрытый — проект виден только в админке.', list: [
+    { value: 'internal_review', label: 'Скрытый' },
+    { value: 'ready_for_showcase', label: 'Публичный' },
   ] },
+  { code: 'PROJECT_STATUS', label: 'Статус проекта', type: 'enumeration', help: 'Статус, который показывается на карточке проекта.', list: projectStatusOptions },
   { code: 'INVEST_STAGE', label: 'Стадия инвестирования', type: 'enumeration', help: 'Текущая стадия развития проекта.', list: [
     { value: 'pre_seed', label: 'Pre-seed' },
     { value: 'seed', label: 'Seed' },
@@ -109,12 +156,7 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
     { value: 'saas', label: 'SaaS' },
     { value: 'on_premise', label: 'On-premise' },
   ] },
-  { code: 'PRICE', label: 'Модель оплаты', type: 'enumeration', help: 'Как проект планирует зарабатывать или предоставлять доступ.', list: [
-    { value: 'free', label: 'Бесплатно' },
-    { value: 'freemium', label: 'Бесплатно + платные функции' },
-    { value: 'trial', label: 'Пробный период' },
-    { value: 'paid', label: 'Платно' },
-  ] },
+  { code: 'PRICE', label: 'Модель оплаты', type: 'enumeration', help: 'Как проект планирует зарабатывать или предоставлять доступ.', list: priceOptions },
   { code: 'LINK', label: 'Сайт проекта', type: 'string', help: 'Внешняя ссылка на сайт, лендинг или демо проекта.' },
   { code: 'TELEGRAM', label: 'Telegram', type: 'string', help: 'Контакт проекта: @username или ссылка на Telegram.' },
   { code: 'EMAIL', label: 'Email', type: 'string', help: 'Контактный email команды проекта.' },
@@ -134,19 +176,14 @@ const dealFieldDefinitions: DealFieldDefinition[] = [
   { code: 'COMMUNITY', label: 'Открытые запросы команды', type: 'string', help: 'Например: ищу инвестиции, ищу пилот, ищу ментора.' },
   { code: 'TEAM_MEMBERS', label: 'Команда проекта', type: 'string', help: 'Состав команды в свободном формате. Один участник — одна строка.' },
   { code: 'TEAM_ROLES', label: 'Открытые роли', type: 'string', help: 'Какие роли команда ищет. Можно перечислить через запятую.' },
-  { code: 'READINESS_ITEMS', label: 'Чеклист готовности', type: 'string', help: 'Что уже готово у проекта: MVP, пилот, пользователи, выручка и т.д.' },
-  { code: 'READINESS', label: 'Заполненность карточки, %', type: 'integer', help: 'Внутренний процент заполненности карточки проекта от 0 до 100.' },
-  { code: 'COOP_NEEDS', label: 'Запросы сотрудничества', type: 'string', help: 'Какая помощь нужна проекту. Можно перечислить через запятую.' },
+  { code: 'READINESS_ITEMS', label: 'Чеклист готовности', type: 'enumeration', help: 'Что уже готово у проекта.', multiple: true, list: readinessOptions },
+  { code: 'COOP_NEEDS', label: 'Запросы сотрудничества', type: 'enumeration', help: 'Какая помощь нужна проекту. Можно выбрать несколько вариантов.', multiple: true, list: cooperationNeedOptions },
   { code: 'COOP_OFFER', label: 'Что предлагает проект', type: 'string', help: 'Что проект готов предложить партнёрам или инвесторам.' },
   { code: 'CRM_OWNER', label: 'Ответственный внутри CRM', type: 'string', help: 'Кто ведёт проект внутри команды.' },
   { code: 'CRM_PRIORITY', label: 'Внутренний приоритет', type: 'enumeration', help: 'Внутренний приоритет обработки проекта.', list: [
     { value: 'low', label: 'Низкий' },
     { value: 'medium', label: 'Средний' },
     { value: 'high', label: 'Высокий' },
-  ] },
-  { code: 'CRM_STATUS', label: 'Показ на сайте', type: 'enumeration', help: 'Публичный — проект виден на сайте. Скрытый — проект виден только в админке.', list: [
-    { value: 'internal_review', label: 'Скрытый' },
-    { value: 'ready_for_showcase', label: 'Публичный' },
   ] },
   { code: 'CRM_NOTES', label: 'Внутренние заметки', type: 'string', help: 'Внутренние заметки по проекту. Не показываются публично.' },
   { code: 'CRM_LAST_CONTACT', label: 'Последний контакт', type: 'string', help: 'Дата или комментарий о последнем контакте с командой.' },
@@ -162,6 +199,15 @@ function bitrixLabel(value: string) {
     ru: value,
     en: value,
   };
+}
+
+function getBitrixList(definition: DealFieldDefinition) {
+  return (definition.list || []).map((option, index) => ({
+    VALUE: option.label,
+    XML_ID: option.value,
+    SORT: (index + 1) * 100,
+    DEF: 'N',
+  }));
 }
 
 function getConfig() {
@@ -317,7 +363,8 @@ function getDealCustomFields(
     [getFieldName('SITE_ID')]: project.id,
     [getFieldName('SHORT_DESCRIPTION')]: project.short_description,
     [getFieldName('FULL_DESCRIPTION')]: project.full_description,
-    [getFieldName('CATEGORIES')]: project.categories.join(', '),
+    [getFieldName('CATEGORIES')]: toBitrixFieldValue('CATEGORIES', project.categories, fieldMap),
+    [getFieldName('SHOWCASE_STATUS')]: toBitrixFieldValue('SHOWCASE_STATUS', project.crm?.status || 'internal_review', fieldMap),
     [getFieldName('PROJECT_STATUS')]: toBitrixFieldValue('PROJECT_STATUS', project.status, fieldMap),
     [getFieldName('INVEST_STAGE')]: toBitrixFieldValue('INVEST_STAGE', project.investment_stage, fieldMap),
     [getFieldName('INVEST_AMOUNT')]: project.investment_amount || '',
@@ -342,13 +389,11 @@ function getDealCustomFields(
     [getFieldName('COMMUNITY')]: (project.community_statuses || []).join(', '),
     [getFieldName('TEAM_MEMBERS')]: formatTeamMembers(project),
     [getFieldName('TEAM_ROLES')]: (project.team_open_roles || []).join(', '),
-    [getFieldName('READINESS_ITEMS')]: (project.readiness_items || []).join(', '),
-    [getFieldName('READINESS')]: project.readiness_score || 0,
-    [getFieldName('COOP_NEEDS')]: (project.cooperation_needs || []).join(', '),
+    [getFieldName('READINESS_ITEMS')]: toBitrixFieldValue('READINESS_ITEMS', project.readiness_items || [], fieldMap),
+    [getFieldName('COOP_NEEDS')]: toBitrixFieldValue('COOP_NEEDS', project.cooperation_needs || [], fieldMap),
     [getFieldName('COOP_OFFER')]: project.cooperation_offer || '',
     [getFieldName('CRM_OWNER')]: project.crm?.owner || '',
     [getFieldName('CRM_PRIORITY')]: toBitrixFieldValue('CRM_PRIORITY', project.crm?.priority || 'medium', fieldMap),
-    [getFieldName('CRM_STATUS')]: toBitrixFieldValue('CRM_STATUS', project.crm?.status || 'internal_review', fieldMap),
     [getFieldName('CRM_NOTES')]: project.crm?.notes || '',
     [getFieldName('CRM_LAST_CONTACT')]: project.crm?.last_contact_at || '',
     [getFieldName('CRM_NEXT_ACTION')]: project.crm?.next_action || '',
@@ -380,7 +425,6 @@ function getDealFields(
       `Категории: ${project.categories.join(', ') || 'не указаны'}`,
       `Город: ${project.city || 'не указан'}`,
       `Инвестиции: ${project.investment_amount || 'сумма уточняется'}`,
-      `Готовность: ${project.readiness_score || 0}%`,
       project.contact_email && `Email: ${project.contact_email}`,
       project.contact_phone && `Телефон: ${project.contact_phone}`,
       project.telegram && `Telegram: ${project.telegram}`,
@@ -416,6 +460,18 @@ async function ensureDealUserFields() {
 
   let fieldMap = await getDealUserFieldMap();
 
+  for (const code of deprecatedDealFieldCodes) {
+    const field = fieldMap.get(getFieldName(code));
+
+    if (field?.ID) {
+      await callBitrix<boolean>('crm.deal.userfield.delete', {
+        id: field.ID,
+      });
+    }
+  }
+
+  fieldMap = await getDealUserFieldMap();
+
   const existingNames = new Set(
     Array.from(fieldMap.keys()),
   );
@@ -427,18 +483,38 @@ async function ensureDealUserFields() {
       const existingField = fieldMap.get(fieldName);
 
       if (existingField?.ID) {
-        await callBitrix<boolean>('crm.deal.userfield.update', {
-          id: existingField.ID,
-          fields: {
-            EDIT_FORM_LABEL: bitrixLabel(definition.label),
-            LIST_COLUMN_LABEL: bitrixLabel(definition.label),
-            LIST_FILTER_LABEL: bitrixLabel(definition.label),
-            HELP_MESSAGE: bitrixLabel(definition.help),
-          },
-        });
-      }
+        if (
+          existingField.USER_TYPE_ID !== definition.type ||
+          existingField.MULTIPLE !== (definition.multiple ? 'Y' : 'N')
+        ) {
+          await callBitrix<boolean>('crm.deal.userfield.delete', {
+            id: existingField.ID,
+          });
+          existingNames.delete(fieldName);
+        } else {
+          await callBitrix<boolean>('crm.deal.userfield.update', {
+            id: existingField.ID,
+            fields: {
+              EDIT_FORM_LABEL: bitrixLabel(definition.label),
+              LIST_COLUMN_LABEL: bitrixLabel(definition.label),
+              LIST_FILTER_LABEL: bitrixLabel(definition.label),
+              HELP_MESSAGE: bitrixLabel(definition.help),
+              ...(definition.type === 'enumeration'
+                ? {
+                    LIST: getBitrixList(definition),
+                    SETTINGS: {
+                      DISPLAY: definition.multiple ? 'CHECKBOX' : 'LIST',
+                      LIST_HEIGHT: definition.list?.length || 1,
+                      SHOW_NO_VALUE: definition.multiple ? 'N' : 'Y',
+                    },
+                  }
+                : {}),
+            },
+          });
 
-      continue;
+          continue;
+        }
+      }
     }
 
     const fields: Record<string, unknown> = {
@@ -469,12 +545,7 @@ async function ensureDealUserFields() {
     };
 
     if (definition.type === 'enumeration') {
-      fields.LIST = (definition.list || []).map((option, index) => ({
-        VALUE: option.label,
-        XML_ID: option.value,
-        SORT: (index + 1) * 100,
-        DEF: 'N',
-      }));
+      fields.LIST = getBitrixList(definition);
     }
 
     await callBitrix<number>('crm.deal.userfield.add', {
@@ -621,6 +692,12 @@ function normalizePlacementTypes(value: string): PlacementType[] {
   return items.length ? items : ['saas'];
 }
 
+function normalizeCategories(value: string) {
+  const allowedCategories = new Set<string>(PROJECT_CATEGORIES);
+
+  return splitList(value).filter((category) => allowedCategories.has(category));
+}
+
 function stripProjectPrefix(title: string) {
   return title.replace(/^\[Проект\]\s*/i, '').trim();
 }
@@ -712,8 +789,10 @@ function normalizeCrmStatus(value: string): CRMStatus {
   const aliases: Record<string, CRMStatus> = {
     internal_review: 'internal_review',
     'внутренний просмотр': 'internal_review',
+    'скрытый': 'internal_review',
     ready_for_showcase: 'ready_for_showcase',
     'готов к показу': 'ready_for_showcase',
+    'публичный': 'ready_for_showcase',
   };
 
   return aliases[normalized] || 'internal_review';
@@ -759,7 +838,7 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       safeText(company?.TITLE || '') ||
       `Проект из Битрикс24${deal.ID ? ` #${deal.ID}` : ''}`;
     const shortDescription = getDealString(deal, 'SHORT_DESCRIPTION', fieldMap);
-    const categories = splitList(getDealString(deal, 'CATEGORIES', fieldMap));
+    const categories = normalizeCategories(getDealString(deal, 'CATEGORIES', fieldMap));
     const contactEmail =
       getDealString(deal, 'EMAIL', fieldMap) || firstMultiValue(company?.EMAIL);
     const contactPhone =
@@ -768,7 +847,7 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       getDealString(deal, 'TELEGRAM', fieldMap) || firstMultiValue(company?.IM);
     const link = getDealString(deal, 'LINK', fieldMap) || firstMultiValue(company?.WEB);
     const dealId = getNumber(deal.ID);
-    const crmStatus = getDealString(deal, 'CRM_STATUS', fieldMap);
+    const crmStatus = getDealString(deal, 'SHOWCASE_STATUS', fieldMap);
     const importedCrmStatus = crmStatus
       ? normalizeCrmStatus(crmStatus)
       : parseStageId(getString(deal.STAGE_ID));
@@ -810,7 +889,7 @@ export async function getProjectsFromBitrix(): Promise<ProjectFormData[]> {
       team_members: parseTeamMembers(getDealString(deal, 'TEAM_MEMBERS', fieldMap)),
       team_open_roles: splitList(getDealString(deal, 'TEAM_ROLES', fieldMap)),
       readiness_items: splitList(getDealString(deal, 'READINESS_ITEMS', fieldMap)) as ProjectFormData['readiness_items'],
-      readiness_score: getNumber(deal[getFieldName('READINESS')]),
+      readiness_score: undefined,
       cooperation_needs: splitList(getDealString(deal, 'COOP_NEEDS', fieldMap)) as ProjectFormData['cooperation_needs'],
       cooperation_offer: getDealString(deal, 'COOP_OFFER', fieldMap),
       crm: {
