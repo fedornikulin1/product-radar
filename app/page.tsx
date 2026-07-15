@@ -2,6 +2,7 @@
 import PageReveal from '@/components/PageReveal';
 import { useEffect, useMemo, useState } from 'react';
 import ProjectCard from '@/components/ProjectCard';
+import ProjectModal from '@/components/ProjectModal';
 import ColorBendsBackground from '@/components/effects/ColorBendsBackground';
 import { Project } from '@/types/project';
 import {
@@ -17,6 +18,7 @@ export default function HomePage() {
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
   const [categorySearch, setCategorySearch] = useState('');
   const [statuses, setStatuses] = useState<string[]>([]);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -59,6 +61,24 @@ export default function HomePage() {
 
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    if (!selectedProject) return;
+
+    function handleEsc(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setSelectedProject(null);
+      }
+    }
+
+    document.addEventListener('keydown', handleEsc);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = '';
+    };
+  }, [selectedProject]);
 
   useEffect(() => {
     async function loadProjects() {
@@ -300,7 +320,11 @@ export default function HomePage() {
                   delay={Math.min(index * 0.06, 0.3)}
                   distance={28}
                 >
-                  <ProjectCard project={project} highlight={debouncedSearch} />
+                  <ProjectCard
+                    project={project}
+                    highlight={debouncedSearch}
+                    onOpen={setSelectedProject}
+                  />
                 </PageReveal>
               ))}
             </div>
@@ -308,6 +332,11 @@ export default function HomePage() {
           </>
         )}
       </section>
+
+      <ProjectModal
+        project={selectedProject}
+        onClose={() => setSelectedProject(null)}
+      />
     </main>
   );
 }
