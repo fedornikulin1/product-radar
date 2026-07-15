@@ -94,7 +94,7 @@ export default function HomePage() {
   }
 
   function openAbout() {
-    window.dispatchEvent(new Event('open-about-modal'));
+    window.location.href = '/about';
   }
 
   function scrollToProjects() {

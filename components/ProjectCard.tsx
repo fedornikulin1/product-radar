@@ -155,7 +155,7 @@ export default function ProjectCard({
               {statusLabels[project.status]}
             </span>
 
-            <span className="max-w-[58%] truncate text-right text-sm font-black text-white/80">
+            <span className="max-w-[62%] truncate text-right text-base font-black text-white md:text-lg">
               {project.investment_amount || 'Инвестиции уточняются'}
             </span>
           </div>
