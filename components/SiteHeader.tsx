@@ -157,9 +157,9 @@ export default function SiteHeader() {
 
   return (
     <>
-      <header className="sticky top-4 z-50 px-4 md:px-8">
+      <header className="sticky top-4 z-[220] px-4 md:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="rounded-[28px] border border-white/10 bg-black/35 px-4 py-3 text-white shadow-2xl shadow-black/20 backdrop-blur-2xl md:px-6">
+          <div className="rounded-[28px] border border-white/10 bg-[#061728]/88 px-4 py-3 text-white shadow-2xl shadow-black/20 backdrop-blur-2xl md:px-6">
             <div className="flex min-w-0 items-center gap-5">
               <button
                 type="button"
@@ -236,7 +236,7 @@ export default function SiteHeader() {
 
       {aboutMounted && (
         <div
-          className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition duration-200 ${
+          className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition duration-200 ${
             aboutVisible ? 'opacity-100' : 'opacity-0'
           }`}
           onClick={closeAbout}
@@ -335,7 +335,7 @@ export default function SiteHeader() {
 
       {contactsMounted && (
         <div
-          className={`fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition duration-200 ${
+          className={`fixed inset-0 z-[300] flex items-center justify-center bg-black/70 p-4 backdrop-blur-md transition duration-200 ${
             contactsVisible ? 'opacity-100' : 'opacity-0'
           }`}
           onClick={closeContacts}
