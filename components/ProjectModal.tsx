@@ -9,6 +9,7 @@ import {
   investmentStageLabels,
   placementTypeLabels,
   priceLabels,
+  readinessLabels,
   statusLabels,
 } from '@/lib/projectOptions';
 
@@ -120,6 +121,102 @@ export default function ProjectModal({
                 ) : null}
               </div>
             )}
+
+            {(project.additional || project.cooperation_offer || project.video_url) && (
+              <div className="grid gap-4 md:grid-cols-2">
+                {project.cooperation_offer && (
+                  <InfoBlock title="Что предлагает проект">
+                    {project.cooperation_offer}
+                  </InfoBlock>
+                )}
+                {project.additional && (
+                  <InfoBlock title="Дополнительно">
+                    {project.additional}
+                  </InfoBlock>
+                )}
+                {project.video_url && (
+                  <InfoBlock title="Видео">
+                    <ContactLine href={project.video_url} value="Открыть видео" external />
+                  </InfoBlock>
+                )}
+              </div>
+            )}
+
+            {(project.team_members?.length || project.team_open_roles?.length) && (
+              <section className="rounded-[24px] border border-white/10 bg-black/25 p-5">
+                <h3 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">
+                  Команда
+                </h3>
+
+                {project.team_members?.length ? (
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    {project.team_members.map((member) => (
+                      <div
+                        key={member.id}
+                        className="rounded-2xl border border-white/10 bg-white/[0.05] p-4"
+                      >
+                        <div className="text-base font-black text-white">
+                          {member.name || 'Участник команды'}
+                        </div>
+                        {member.role && (
+                          <div className="mt-1 text-sm font-bold text-cyan-100/85">
+                            {member.role}
+                          </div>
+                        )}
+                        {member.bio && (
+                          <p className="mt-2 text-sm leading-relaxed text-white/62">
+                            {member.bio}
+                          </p>
+                        )}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {member.telegram && (
+                            <ContactLine href={formatTelegram(member.telegram)} value="Telegram" />
+                          )}
+                          {member.linkedin && (
+                            <ContactLine href={member.linkedin} value="LinkedIn" external />
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                {project.team_open_roles?.length ? (
+                  <div className="mt-5">
+                    <div className="text-xs font-black uppercase tracking-[0.16em] text-white/35">
+                      Открытые роли
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {project.team_open_roles.map((role) => (
+                        <Tag key={role}>{role}</Tag>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+            )}
+
+            {(project.gallery_urls.length > 0 || project.presentation_url) && (
+              <section className="rounded-[24px] border border-white/10 bg-black/25 p-5">
+                <h3 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">
+                  Материалы
+                </h3>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {project.presentation_url && (
+                    <ContactLine href={project.presentation_url} value="Открыть презентацию" external />
+                  )}
+                  {project.gallery_urls.map((url, index) => (
+                    <ContactLine
+                      key={`${url}-${index}`}
+                      href={url}
+                      value={`Материал ${index + 1}`}
+                      external
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           <aside className="space-y-4">
@@ -129,6 +226,20 @@ export default function ProjectModal({
             <SideMetric title="Категории" value={(project.categories || []).join(', ') || 'Не указаны'} />
             <SideMetric title="Локация" value={[project.country, project.city].filter(Boolean).join(', ') || 'Не указана'} />
             <SideMetric title="Технологии" value={project.technologies || 'Уточняются'} />
+            <SideMetric title="Команда" value={formatTeamCount(project.team_members?.length || 0)} />
+
+            {project.readiness_items?.length ? (
+              <div className="rounded-[22px] border border-white/10 bg-black/25 p-4">
+                <div className="text-xs font-black uppercase tracking-[0.16em] text-white/40">
+                  Чеклист готовности
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {project.readiness_items.map((item) => (
+                    <Tag key={item} tone="green">{readinessLabels[item]}</Tag>
+                  ))}
+                </div>
+              </div>
+            ) : null}
 
             <div className="rounded-[22px] border border-white/10 bg-black/25 p-4">
               <div className="text-xs font-black uppercase tracking-[0.16em] text-white/40">
@@ -141,6 +252,11 @@ export default function ProjectModal({
                 {project.link && <ContactLine href={project.link} value="Сайт проекта" external />}
                 {project.presentation_url && <ContactLine href={project.presentation_url} value="Презентация" external />}
               </div>
+            </div>
+
+            <div className="rounded-[22px] border border-white/10 bg-black/25 p-4 text-sm text-white/55">
+              <div>Создано: {formatDate(project.created_at)}</div>
+              <div className="mt-1">Обновлено: {formatDate(project.updated_at)}</div>
             </div>
           </aside>
         </div>
@@ -233,4 +349,30 @@ function formatTelegram(value: string) {
   if (value.startsWith('http')) return value;
   const username = value.replace(/^@/, '').trim();
   return `https://t.me/${username}`;
+}
+
+function formatTeamCount(count: number) {
+  if (!count) return 'Состав уточняется';
+
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (lastDigit === 1 && lastTwoDigits !== 11) return `${count} участник`;
+  if ([2, 3, 4].includes(lastDigit) && ![12, 13, 14].includes(lastTwoDigits)) {
+    return `${count} участника`;
+  }
+
+  return `${count} участников`;
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) return 'Дата уточняется';
+
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  }).format(date);
 }
