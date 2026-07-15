@@ -21,19 +21,24 @@ export default function ContactsPage() {
             официальный сайт.
           </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <ContactCard title="Телефон" href="tel:+74112506295" value="+7 (4112) 50-62-95" />
-            <ContactCard title="Email" href="mailto:info@corp-sakha.ru" value="info@corp-sakha.ru" />
-            <ContactCard title="Адрес" href="https://go.2gis.com/SBUvT" value="г. Якутск, ул. Труда, 1" external />
-            <ContactCard title="Официальный сайт" href="https://yakutiacorp.ru/" value="yakutiacorp.ru" external />
-          </div>
+          <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_320px]">
+            <div className="grid gap-4 md:grid-cols-2">
+              <ContactCard title="Телефон" href="tel:+74112506295" value="+7 (4112) 50-62-95" />
+              <ContactCard title="Email" href="mailto:info@corp-sakha.ru" value="info@corp-sakha.ru" />
+              <ContactCard title="Адрес" href="https://go.2gis.com/SBUvT" value="г. Якутск, ул. Труда, 1" external />
+              <ContactCard title="Официальный сайт" href="https://yakutiacorp.ru/" value="yakutiacorp.ru" external />
+            </div>
 
-          <div className="mt-8 rounded-[28px] border border-white/10 bg-black/30 p-5 md:p-6">
-            <div className="text-lg font-bold">Социальные сети</div>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <SocialButton href="https://vk.com/yakutiacorp" label="ВКонтакте" />
-              <SocialButton href="https://t.me/yakutiacorp" label="Telegram" />
-              <SocialButton href="https://max.ru/id1435289661_gos" label="MAX" />
+            <div className="rounded-[28px] border border-white/10 bg-black/30 p-5 md:p-6">
+              <div className="text-lg font-bold">Социальные сети</div>
+              <p className="mt-2 text-sm leading-relaxed text-white/55">
+                Быстрые каналы для новостей, объявлений и связи с корпорацией.
+              </p>
+              <div className="mt-5 flex flex-col gap-2.5">
+                <SocialButton href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="VK" />
+                <SocialButton href="https://t.me/yakutiacorp" label="Telegram" icon="TG" />
+                <SocialButton href="https://max.ru/id1435289661_gos" label="MAX" icon="MAX" />
+              </div>
             </div>
           </div>
         </div>
@@ -71,18 +76,23 @@ function ContactCard({
 function SocialButton({
   href,
   label,
+  icon,
 }: {
   href: string;
   label: string;
+  icon: string;
 }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="inline-flex h-11 items-center justify-center rounded-xl border border-white/10 bg-white/10 px-5 text-sm font-bold text-white/85 transition hover:bg-white/15 hover:text-white"
+      className="group flex h-11 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-3 text-sm font-bold text-white/85 transition hover:bg-white/[0.12] hover:text-white"
     >
-      {label}
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[10px] font-black text-white/75 transition group-hover:bg-white/15">
+        {icon}
+      </span>
+      <span>{label}</span>
     </a>
   );
 }
