@@ -128,7 +128,7 @@ function SocialIconLink({
 function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' | 'web' }) {
   if (icon === 'vk') {
     return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
         <path d="M12.7 17.2c-5.3 0-8.4-3.6-8.6-9.6h2.7c.1 4.4 2 6.3 3.4 6.7V7.6h2.6v3.8c1.4-.2 2.8-1.9 3.3-3.8h2.6c-.4 2.3-2.2 4-3.4 4.7 1.2.6 3.1 2.1 3.9 4.9h-2.9c-.5-1.8-1.8-3.2-3.5-3.5v3.5h-.1Z" />
       </svg>
     );
