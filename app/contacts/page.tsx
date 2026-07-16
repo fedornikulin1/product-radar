@@ -162,7 +162,7 @@ function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' }) {
   }
 
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-current">
       <path
         fillRule="evenodd"
         d="M12.1 5.2c-4 0-7.1 2.9-7.1 6.7v6.3l3.1-2.1c1.1.7 2.5 1.1 4 1.1 4 0 7.1-2.9 7.1-6s-3.1-6-7.1-6Zm0 3.7c1.7 0 3 1.2 3 2.8s-1.3 2.8-3 2.8-3-1.2-3-2.8 1.3-2.8 3-2.8Z"
