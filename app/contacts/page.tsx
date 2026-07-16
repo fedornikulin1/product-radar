@@ -35,9 +35,9 @@ export default function ContactsPage() {
                 Быстрые каналы для новостей, объявлений и связи с корпорацией.
               </p>
               <div className="mt-5 flex flex-col gap-2.5">
-                <SocialButton href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="VK" />
-                <SocialButton href="https://t.me/yakutiacorp" label="Telegram" icon="TG" />
-                <SocialButton href="https://max.ru/id1435289661_gos" label="MAX" icon="MAX" />
+                <SocialButton href="https://vk.com/yakutiacorp" label="ВКонтакте" icon="vk" />
+                <SocialButton href="https://t.me/yakutiacorp" label="Telegram" icon="telegram" />
+                <SocialButton href="https://max.ru/id1435289661_gos" label="MAX" icon="max" />
               </div>
             </div>
           </div>
@@ -127,7 +127,7 @@ function SocialButton({
 }: {
   href: string;
   label: string;
-  icon: string;
+  icon: 'vk' | 'telegram' | 'max';
 }) {
   return (
     <a
@@ -136,10 +136,34 @@ function SocialButton({
       rel="noreferrer"
       className="group flex h-11 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.07] px-3 text-sm font-bold text-white/85 transition hover:bg-white/[0.12] hover:text-white"
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[10px] font-black text-white/75 transition group-hover:bg-white/15">
-        {icon}
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900/70 text-white transition group-hover:bg-slate-800">
+        <SocialIcon icon={icon} />
       </span>
       <span>{label}</span>
     </a>
+  );
+}
+
+function SocialIcon({ icon }: { icon: 'vk' | 'telegram' | 'max' }) {
+  if (icon === 'vk') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+        <path d="M12.7 17.2c-5.3 0-8.4-3.6-8.6-9.6h2.7c.1 4.4 2 6.3 3.4 6.7V7.6h2.6v3.8c1.4-.2 2.8-1.9 3.3-3.8h2.6c-.4 2.3-2.2 4-3.4 4.7 1.2.6 3.1 2.1 3.9 4.9h-2.9c-.5-1.8-1.8-3.2-3.5-3.5v3.5h-.1Z" />
+      </svg>
+    );
+  }
+
+  if (icon === 'telegram') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+        <path d="M20.9 4.6 17.8 19c-.2 1-.8 1.2-1.6.8l-4.4-3.2-2.1 2c-.2.2-.4.4-.9.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2L6.6 13.3l-4.4-1.4c-1-.3-1-1 .2-1.5L19.5 3.8c.8-.3 1.5.2 1.4.8Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 fill-current">
+      <path d="M12 4.5c-4.5 0-7.8 3-7.8 7.1 0 2.1.9 3.9 2.4 5.2l-.5 2.7 2.8-1.1c.9.3 2 .5 3.1.5 4.5 0 7.8-3 7.8-7.2S16.5 4.5 12 4.5Zm-2.9 9.9V9.1h1.8l1.1 2 1.1-2h1.8v5.3h-1.7v-2.8L12 13.5l-1.2-1.9v2.8H9.1Z" />
+    </svg>
   );
 }
