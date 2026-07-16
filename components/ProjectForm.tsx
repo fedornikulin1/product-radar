@@ -645,7 +645,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="fade-up mx-auto max-w-6xl space-y-6 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8"
+      className="fade-up mx-auto max-w-7xl space-y-6 rounded-[34px] border border-white/10 bg-black/35 p-6 text-white shadow-2xl shadow-black/20 backdrop-blur-xl md:p-8"
     >
       {submitError && (
         <div className="rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm font-medium text-red-100">
@@ -725,7 +725,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('short_description')}
       />
 
-      <div className="grid items-end gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid items-end gap-5 md:grid-cols-3">
         <Controller
           control={control}
           name="status"
@@ -770,53 +770,6 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
         <Controller
           control={control}
-          name="placement_types"
-          render={({ field }) => (
-            <div>
-              <FieldLabel
-                label="Тип размещения"
-                hint="Можно выбрать один или оба варианта."
-                required
-              />
-
-              <div className="flex min-h-[58px] flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/35 p-2">
-                {PLACEMENT_TYPE_OPTIONS.map((type) => {
-                  const active = field.value.includes(type);
-
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() =>
-                        field.onChange(
-                          active
-                            ? field.value.filter((item) => item !== type)
-                            : [...field.value, type],
-                        )
-                      }
-                      className={
-                        active
-                          ? 'rounded-xl bg-[#5227FF] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#5227FF]/20'
-                          : 'rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/65 transition hover:bg-white/20 hover:text-white'
-                      }
-                    >
-                      {placementTypeLabels[type]}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {errors.placement_types?.message && (
-                <p className="mt-2 text-sm font-medium text-red-200">
-                  {errors.placement_types.message}
-                </p>
-              )}
-            </div>
-          )}
-        />
-
-        <Controller
-          control={control}
           name="price"
           render={({ field }) => (
             <Select
@@ -852,7 +805,8 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('link')}
       />
 
-      <Controller
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.75fr)]">
+        <Controller
         control={control}
         name="audience_types"
         render={({ field }) => (
@@ -868,6 +822,55 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           />
         )}
       />
+
+        <Controller
+          control={control}
+          name="placement_types"
+          render={({ field }) => (
+            <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
+              <FieldLabel
+                label="Тип размещения"
+                hint="Можно выбрать один или оба варианта."
+                required
+              />
+
+              <div className="mt-4 flex min-h-[58px] flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/35 p-2">
+                {PLACEMENT_TYPE_OPTIONS.map((type) => {
+                  const active = field.value.includes(type);
+
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() =>
+                        field.onChange(
+                          active
+                            ? field.value.filter((item) => item !== type)
+                            : [...field.value, type],
+                        )
+                      }
+                      className={
+                        active
+                          ? 'rounded-xl bg-[#5227FF] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#5227FF]/20'
+                          : 'rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/65 transition hover:bg-white/20 hover:text-white'
+                      }
+                    >
+                      {placementTypeLabels[type]}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {errors.placement_types?.message && (
+                <p className="mt-2 text-sm font-medium text-red-200">
+                  {errors.placement_types.message}
+                </p>
+              )}
+            </div>
+          )}
+        />
+
+      </div>
 
       <div className="grid items-start gap-5 md:grid-cols-3">
         <Input

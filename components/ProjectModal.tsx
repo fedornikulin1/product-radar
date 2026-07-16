@@ -44,18 +44,18 @@ export default function ProjectModal({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 gap-4">
+          <div className="flex min-w-0 gap-5">
             {project.logo_url ? (
               <Image
                 src={project.logo_url}
                 alt={project.title}
-                width={88}
-                height={88}
+                width={124}
+                height={124}
                 unoptimized
-                className="h-20 w-20 shrink-0 rounded-2xl object-cover shadow-lg shadow-black/20 md:h-[88px] md:w-[88px]"
+                className="h-24 w-24 shrink-0 rounded-[26px] object-cover shadow-lg shadow-black/20 md:h-[124px] md:w-[124px]"
               />
             ) : (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-3xl font-black">
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[26px] border border-white/10 bg-white/10 text-5xl font-black md:h-[124px] md:w-[124px]">
                 {project.title?.[0] || '?'}
               </div>
             )}
@@ -202,16 +202,17 @@ export default function ProjectModal({
                   Материалы
                 </h3>
 
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {project.presentation_url && (
-                    <ContactLine href={project.presentation_url} value="Открыть презентацию" external />
+                    <MaterialCard href={project.presentation_url} title="Презентация" subtitle="Открыть файл" />
                   )}
                   {project.gallery_urls.map((url, index) => (
-                    <ContactLine
+                    <MaterialCard
                       key={`${url}-${index}`}
                       href={url}
-                      value={`Материал ${index + 1}`}
-                      external
+                      title={`Материал ${index + 1}`}
+                      subtitle="Открыть материал"
+                      image
                     />
                   ))}
                 </div>
@@ -254,10 +255,6 @@ export default function ProjectModal({
               </div>
             </div>
 
-            <div className="rounded-[22px] border border-white/10 bg-black/25 p-4 text-sm text-white/55">
-              <div>Создано: {formatDate(project.created_at)}</div>
-              <div className="mt-1">Обновлено: {formatDate(project.updated_at)}</div>
-            </div>
           </aside>
         </div>
       </article>
@@ -300,6 +297,48 @@ function InfoBlock({
       </h3>
       <div className="mt-3 text-base leading-relaxed text-white/78">{children}</div>
     </section>
+  );
+}
+
+function MaterialCard({
+  href,
+  title,
+  subtitle,
+  image = false,
+}: {
+  href: string;
+  title: string;
+  subtitle: string;
+  image?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] transition hover:-translate-y-0.5 hover:bg-white/[0.09]"
+    >
+      {image ? (
+        <div className="relative h-28 border-b border-white/10 bg-slate-900/60">
+          <Image
+            src={href}
+            alt={title}
+            fill
+            unoptimized
+            className="object-cover opacity-85 transition group-hover:opacity-100"
+          />
+        </div>
+      ) : (
+        <div className="flex h-28 items-center justify-center border-b border-white/10 bg-[#5227FF]/20 text-3xl font-black text-white">
+          PPT
+        </div>
+      )}
+
+      <div className="p-4">
+        <div className="text-base font-black text-white">{title}</div>
+        <div className="mt-1 text-sm text-white/55">{subtitle}</div>
+      </div>
+    </a>
   );
 }
 
@@ -363,16 +402,4 @@ function formatTeamCount(count: number) {
   }
 
   return `${count} участников`;
-}
-
-function formatDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) return 'Дата уточняется';
-
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
 }
