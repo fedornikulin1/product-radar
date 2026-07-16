@@ -804,7 +804,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         {...register('link')}
       />
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.75fr)]">
+      <div className="grid items-stretch gap-5 lg:grid-cols-2">
         <Controller
           control={control}
           name="audience_types"
@@ -826,7 +826,7 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           control={control}
           name="placement_types"
           render={({ field }) => (
-            <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
+            <div className="flex min-h-[180px] flex-col rounded-[26px] border border-white/10 bg-black/35 p-5">
               <div className="mb-3">
                 <FieldLabel
                   label="Тип размещения"
@@ -1897,7 +1897,7 @@ function CheckboxGroup({
 
   return (
     <div
-      className={`rounded-[26px] border p-5 ${
+      className={`min-h-[180px] rounded-[26px] border p-5 ${
         error
           ? 'border-red-400/30 bg-red-500/5'
           : 'border-white/10 bg-black/35'
