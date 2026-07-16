@@ -25,7 +25,7 @@ export default function ContactsPage() {
             <div className="grid gap-4 md:grid-cols-2">
               <ContactCard title="Телефон" href="tel:+74112506295" value="+7 (4112) 50-62-95" />
               <ContactCard title="Email" href="mailto:info@corp-sakha.ru" value="info@corp-sakha.ru" />
-              <ContactCard title="Адрес" href="https://go.2gis.com/SBUvT" value="г. Якутск, ул. Труда, 1" external />
+              <ContactCard title="Адрес" href="https://yandex.ru/maps/?text=Якутск%2C%20улица%20Труда%2C%201" value="г. Якутск, ул. Труда, 1, 5 этаж, 723 кабинет" external />
               <ContactCard title="Официальный сайт" href="https://yakutiacorp.ru/" value="yakutiacorp.ru" external />
             </div>
 
@@ -41,6 +41,53 @@ export default function ContactsPage() {
               </div>
             </div>
           </div>
+
+          <section className="mt-6 overflow-hidden rounded-[30px] border border-white/10 bg-black/25 shadow-2xl shadow-black/15">
+            <div className="grid gap-0 lg:grid-cols-[1fr_340px]">
+              <div className="relative min-h-[360px] bg-slate-900/40">
+                <iframe
+                  title="Карта расположения Корпорации развития Республики Саха (Якутия)"
+                  src="https://yandex.ru/map-widget/v1/?text=Якутск%2C%20улица%20Труда%2C%201&z=17"
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+
+              <div className="flex flex-col justify-between gap-5 p-5 md:p-6">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-[0.18em] text-white/45">
+                    Где находимся
+                  </div>
+                  <h2 className="mt-3 text-2xl font-black text-white">
+                    Офис в Якутске
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">
+                    Республика Саха (Якутия), г. Якутск, улица Труда, 1.
+                    Ориентир — центр города, рядом со Столичным корпусом.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                  <div className="text-xs font-black uppercase tracking-[0.16em] text-white/45">
+                    Режим работы
+                  </div>
+                  <div className="mt-2 text-lg font-bold text-white/90">
+                    с 09:00 до 18:00
+                  </div>
+                </div>
+
+                <a
+                  href="https://yandex.ru/maps/?text=Якутск%2C%20улица%20Труда%2C%201"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#5227FF] px-5 text-sm font-black text-white transition hover:bg-indigo-500"
+                >
+                  Открыть в Яндекс Картах
+                </a>
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     </main>
