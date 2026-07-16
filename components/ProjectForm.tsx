@@ -76,8 +76,7 @@ const schema = z.object({
   logo_url: z.string().optional().default(''),
   categories: z
     .array(z.string())
-    .min(1, 'Выберите хотя бы 1 категорию')
-    .max(3, 'Максимум 3 категории'),
+    .min(1, 'Выберите хотя бы 1 категорию'),
   price: z.enum(['free', 'freemium', 'trial', 'paid']),
 
   link: z.string().url('Введите корректную ссылку').or(z.literal('')),
@@ -807,34 +806,34 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.75fr)]">
         <Controller
-        control={control}
-        name="audience_types"
-        render={({ field }) => (
-          <CheckboxGroup
-            label="Тип проекта / аудитория"
-            hint="Обязательное поле. Можно выбрать несколько: B2B, B2C, B2G."
-            required
-            options={AUDIENCE_TYPE_OPTIONS}
-            value={field.value}
-            onChange={field.onChange}
-            labelsMap={audienceTypeLabels}
-            error={errors.audience_types?.message}
-          />
-        )}
-      />
+          control={control}
+          name="audience_types"
+          render={({ field }) => (
+            <CheckboxGroup
+              label="Тип проекта / аудитория"
+              hint="Обязательное поле. Можно выбрать несколько: B2B, B2C, B2G."
+              required
+              options={AUDIENCE_TYPE_OPTIONS}
+              value={field.value}
+              onChange={field.onChange}
+              labelsMap={audienceTypeLabels}
+              error={errors.audience_types?.message}
+            />
+          )}
+        />
 
         <Controller
           control={control}
           name="placement_types"
           render={({ field }) => (
-            <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
+            <div className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
               <FieldLabel
                 label="Тип размещения"
                 hint="Можно выбрать один или оба варианта."
                 required
               />
 
-              <div className="mt-4 flex min-h-[58px] flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-black/35 p-2">
+              <div className="mt-6 flex flex-wrap gap-3">
                 {PLACEMENT_TYPE_OPTIONS.map((type) => {
                   const active = field.value.includes(type);
 
@@ -851,8 +850,8 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                       }
                       className={
                         active
-                          ? 'rounded-xl bg-[#5227FF] px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#5227FF]/20'
-                          : 'rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-medium text-white/65 transition hover:bg-white/20 hover:text-white'
+                          ? 'rounded-2xl bg-[#5227FF] px-6 py-4 text-base font-bold text-white shadow-lg shadow-[#5227FF]/20'
+                          : 'rounded-2xl border border-white/10 bg-white/10 px-6 py-4 text-base font-medium text-white/65 transition hover:bg-white/20 hover:text-white'
                       }
                     >
                       {placementTypeLabels[type]}
@@ -1037,11 +1036,10 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
         render={({ field }) => (
           <CheckboxGroup
             label="Категории"
-            hint="Обязательное поле. Можно выбрать до 3 категорий."
+            hint="Обязательное поле. Можно выбрать несколько категорий."
             required
             options={categoryOptions}
             value={field.value}
-            max={3}
             onChange={field.onChange}
             onAddOption={(option) =>
               setCategoryOptions((currentOptions) =>
@@ -1294,26 +1292,28 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           </div>
         )}
 
-        <Controller
-          control={control}
-          name="team_open_roles"
-          render={({ field }) => (
-            <Textarea
-              label="Открытые роли в команде"
-              hint="Необязательное поле. Каждая роль с новой строки."
-              optional
-              value={(field.value || []).join('\n')}
-              onChange={(event) =>
-                field.onChange(
-                  event.target.value
-                    .split('\n')
-                    .map((item) => item.trim())
-                    .filter(Boolean),
-                )
-              }
-            />
-          )}
-        />
+        <div className="mt-7">
+          <Controller
+            control={control}
+            name="team_open_roles"
+            render={({ field }) => (
+              <Textarea
+                label="Открытые роли в команде"
+                hint="Необязательное поле. Каждая роль с новой строки."
+                optional
+                value={(field.value || []).join('\n')}
+                onChange={(event) =>
+                  field.onChange(
+                    event.target.value
+                      .split('\n')
+                      .map((item) => item.trim())
+                      .filter(Boolean),
+                  )
+                }
+              />
+            )}
+          />
+        </div>
       </section>
 
       <section className="rounded-[26px] border border-white/10 bg-black/35 p-5">
@@ -1372,29 +1372,33 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           )}
         />
 
-        <Textarea
-          label="Что предлагаем партнёру / инвестору"
-          hint="Необязательное поле. Кратко опиши ценность сотрудничества."
-          optional
-          error={errors.cooperation_offer?.message}
-          {...register('cooperation_offer')}
-        />
+        <div className="mt-7">
+          <Textarea
+            label="Что предлагаем партнёру / инвестору"
+            hint="Необязательное поле. Кратко опиши ценность сотрудничества."
+            optional
+            error={errors.cooperation_offer?.message}
+            {...register('cooperation_offer')}
+          />
+        </div>
       </section>
 
-      <Controller
-        control={control}
-        name="community_statuses"
-        render={({ field }) => (
-          <CheckboxGroup
-            label="Дополнительные запросы проекта"
-            hint="Необязательное поле."
-            optional
-            options={COMMUNITY_STATUSES}
-            value={field.value}
-            onChange={field.onChange}
-          />
-        )}
-      />
+      <div className="-mt-3 [&>div]:p-4">
+        <Controller
+          control={control}
+          name="community_statuses"
+          render={({ field }) => (
+            <CheckboxGroup
+              label="Дополнительные запросы проекта"
+              hint="Необязательное поле."
+              optional
+              options={COMMUNITY_STATUSES}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
 
       <section className="rounded-[26px] border border-amber-300/15 bg-amber-400/5 p-5">
         <FieldLabel

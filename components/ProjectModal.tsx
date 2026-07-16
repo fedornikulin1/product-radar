@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { Project } from '@/types/project';
 import {
@@ -40,7 +42,7 @@ export default function ProjectModal({
       onClick={onClose}
     >
       <article
-        className="custom-scrollbar max-h-[calc(100vh-2rem)] w-full max-w-6xl overflow-y-auto rounded-[34px] border border-white/10 bg-[#061728]/92 p-5 text-white shadow-2xl shadow-black/40 backdrop-blur-2xl md:p-8"
+        className="custom-scrollbar max-h-[calc(100vh-2rem)] w-full max-w-6xl overflow-y-auto rounded-[34px] border border-white/10 bg-[#0b2d42]/94 p-5 text-white shadow-2xl shadow-black/40 backdrop-blur-2xl md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
@@ -76,6 +78,21 @@ export default function ProjectModal({
               <p className="mt-3 max-w-3xl text-base leading-relaxed text-white/70 md:text-lg">
                 {project.short_description}
               </p>
+
+              {(project.presentation_url || project.link) && (
+                <div className="mt-5 flex flex-wrap gap-3">
+                  {project.presentation_url && (
+                    <PrimaryProjectLink href={project.presentation_url}>
+                      Презентация проекта
+                    </PrimaryProjectLink>
+                  )}
+                  {project.link && (
+                    <PrimaryProjectLink href={project.link}>
+                      Сайт проекта
+                    </PrimaryProjectLink>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -196,27 +213,8 @@ export default function ProjectModal({
               </section>
             )}
 
-            {(project.gallery_urls.length > 0 || project.presentation_url) && (
-              <section className="rounded-[24px] border border-white/10 bg-black/25 p-5">
-                <h3 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">
-                  Материалы
-                </h3>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {project.presentation_url && (
-                    <MaterialCard href={project.presentation_url} title="Презентация" subtitle="Открыть файл" />
-                  )}
-                  {project.gallery_urls.map((url, index) => (
-                    <MaterialCard
-                      key={`${url}-${index}`}
-                      href={url}
-                      title={`Материал ${index + 1}`}
-                      subtitle="Открыть материал"
-                      image
-                    />
-                  ))}
-                </div>
-              </section>
+            {project.gallery_urls.length > 0 && (
+              <ProjectGallery images={project.gallery_urls} />
             )}
           </div>
 
@@ -250,8 +248,6 @@ export default function ProjectModal({
                 {project.contact_email && <ContactLine href={`mailto:${project.contact_email}`} value={project.contact_email} />}
                 {project.contact_phone && <ContactLine href={`tel:${project.contact_phone}`} value={project.contact_phone} />}
                 {project.telegram && <ContactLine href={formatTelegram(project.telegram)} value={project.telegram} />}
-                {project.link && <ContactLine href={project.link} value="Сайт проекта" external />}
-                {project.presentation_url && <ContactLine href={project.presentation_url} value="Презентация" external />}
               </div>
             </div>
 
@@ -283,6 +279,25 @@ function Tag({
   );
 }
 
+function PrimaryProjectLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex min-h-14 items-center justify-center rounded-2xl border border-cyan-200/20 bg-cyan-300/15 px-6 text-base font-black text-cyan-50 shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-cyan-300/25"
+    >
+      {children}
+    </a>
+  );
+}
+
 function InfoBlock({
   title,
   children,
@@ -300,45 +315,166 @@ function InfoBlock({
   );
 }
 
-function MaterialCard({
-  href,
-  title,
-  subtitle,
-  image = false,
+function ProjectGallery({ images }: { images: string[] }) {
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [startIndex, setStartIndex] = useState(0);
+
+  useEffect(() => {
+    if (!activeImage) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setActiveImage(null);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeImage]);
+
+  const visibleImages = useMemo(() => {
+    const result: string[] = [];
+
+    for (let i = 0; i < Math.min(3, images.length); i += 1) {
+      result.push(images[(startIndex + i) % images.length]);
+    }
+
+    return result;
+  }, [images, startIndex]);
+
+  function goPrev() {
+    setStartIndex((current) =>
+      current === 0 ? images.length - 1 : current - 1,
+    );
+  }
+
+  function goNext() {
+    setStartIndex((current) => (current + 1) % images.length);
+  }
+
+  return (
+    <>
+      <section className="rounded-[24px] border border-white/10 bg-black/25 p-5">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-[0.16em] text-white/40">
+              Материалы
+            </h3>
+            <p className="mt-1 text-sm text-white/55">
+              Галерея, скриншоты и визуальные материалы.
+            </p>
+          </div>
+
+          {images.length > 3 && (
+            <div className="flex gap-2">
+              <GalleryArrow onClick={goPrev}>‹</GalleryArrow>
+              <GalleryArrow onClick={goNext}>›</GalleryArrow>
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          {visibleImages.map((url, index) => (
+            <button
+              key={`${url}-${index}`}
+              type="button"
+              onClick={() => setActiveImage(url)}
+              className="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left shadow-lg shadow-black/20"
+            >
+              <Image
+                src={url}
+                alt=""
+                width={900}
+                height={560}
+                unoptimized
+                className="h-32 w-full object-cover transition duration-300 group-hover:scale-105 md:h-36"
+              />
+
+              <div className="flex items-center justify-between px-3 py-2 text-xs font-bold text-white/60">
+                <span>
+                  Фото {((startIndex + index) % images.length) + 1} / {images.length}
+                </span>
+                <span className="text-white/55 transition group-hover:text-white">
+                  Увеличить
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {images.length > 1 && (
+          <div className="mt-4 flex justify-center gap-2">
+            {images.map((image, index) => (
+              <button
+                key={image}
+                type="button"
+                onClick={() => setStartIndex(index)}
+                className={
+                  index === startIndex
+                    ? 'h-2 w-7 rounded-full bg-white'
+                    : 'h-2 w-2 rounded-full bg-white/30 transition hover:bg-white/60'
+                }
+                aria-label={`Показать фото ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {activeImage &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+            onClick={() => setActiveImage(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Просмотр изображения"
+          >
+            <div
+              className="relative max-h-[92vh] max-w-[94vw]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <Image
+                src={activeImage}
+                alt=""
+                width={1600}
+                height={1000}
+                unoptimized
+                className="h-auto max-h-[92vh] w-auto max-w-[94vw] rounded-[28px] object-contain shadow-2xl shadow-black"
+              />
+
+              <button
+                type="button"
+                onClick={() => setActiveImage(null)}
+                className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/65 text-xl font-bold text-white shadow-lg backdrop-blur-md transition hover:bg-black/85"
+                aria-label="Закрыть изображение"
+              >
+                ×
+              </button>
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
+  );
+}
+
+function GalleryArrow({
+  children,
+  onClick,
 }: {
-  href: string;
-  title: string;
-  subtitle: string;
-  image?: boolean;
+  children: React.ReactNode;
+  onClick: () => void;
 }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] transition hover:-translate-y-0.5 hover:bg-white/[0.09]"
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-2xl font-black text-white transition hover:bg-white/20"
     >
-      {image ? (
-        <div className="relative h-28 border-b border-white/10 bg-slate-900/60">
-          <Image
-            src={href}
-            alt={title}
-            fill
-            unoptimized
-            className="object-cover opacity-85 transition group-hover:opacity-100"
-          />
-        </div>
-      ) : (
-        <div className="flex h-28 items-center justify-center border-b border-white/10 bg-[#5227FF]/20 text-3xl font-black text-white">
-          PPT
-        </div>
-      )}
-
-      <div className="p-4">
-        <div className="text-base font-black text-white">{title}</div>
-        <div className="mt-1 text-sm text-white/55">{subtitle}</div>
-      </div>
-    </a>
+      {children}
+    </button>
   );
 }
 
