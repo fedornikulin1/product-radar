@@ -45,8 +45,8 @@ export default function ProjectModal({
         className="custom-scrollbar max-h-[calc(100vh-2rem)] w-full max-w-6xl overflow-y-auto rounded-[34px] border border-white/10 bg-[#0b2d42]/94 p-5 text-white shadow-2xl shadow-black/40 backdrop-blur-2xl md:p-8"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 gap-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex min-w-0 flex-1 gap-5">
             {project.logo_url ? (
               <Image
                 src={project.logo_url}
@@ -79,22 +79,23 @@ export default function ProjectModal({
                 {project.short_description}
               </p>
 
-              {(project.presentation_url || project.link) && (
-                <div className="mt-5 flex flex-wrap gap-3">
-                  {project.presentation_url && (
-                    <PrimaryProjectLink href={project.presentation_url}>
-                      Презентация проекта
-                    </PrimaryProjectLink>
-                  )}
-                  {project.link && (
-                    <PrimaryProjectLink href={project.link}>
-                      Сайт проекта
-                    </PrimaryProjectLink>
-                  )}
-                </div>
-              )}
             </div>
           </div>
+
+          {(project.presentation_url || project.link) && (
+            <div className="mt-1 flex flex-wrap gap-3 lg:mr-2 lg:mt-9">
+              {project.presentation_url && (
+                <PrimaryProjectLink href={project.presentation_url}>
+                  Презентация проекта
+                </PrimaryProjectLink>
+              )}
+              {project.link && (
+                <PrimaryProjectLink href={project.link}>
+                  Сайт проекта
+                </PrimaryProjectLink>
+              )}
+            </div>
+          )}
 
           <button
             type="button"

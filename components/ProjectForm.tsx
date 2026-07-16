@@ -826,14 +826,16 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
           control={control}
           name="placement_types"
           render={({ field }) => (
-            <div className="rounded-[26px] border border-white/10 bg-white/[0.03] p-5">
-              <FieldLabel
-                label="Тип размещения"
-                hint="Можно выбрать один или оба варианта."
-                required
-              />
+            <div className="rounded-[26px] border border-white/10 bg-black/35 p-5">
+              <div className="mb-3">
+                <FieldLabel
+                  label="Тип размещения"
+                  hint="Можно выбрать один или оба варианта."
+                  required
+                />
+              </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {PLACEMENT_TYPE_OPTIONS.map((type) => {
                   const active = field.value.includes(type);
 
@@ -850,8 +852,8 @@ export default function ProjectForm({ project, mode = 'create' }: Props) {
                       }
                       className={
                         active
-                          ? 'rounded-2xl bg-[#5227FF] px-6 py-4 text-base font-bold text-white shadow-lg shadow-[#5227FF]/20'
-                          : 'rounded-2xl border border-white/10 bg-white/10 px-6 py-4 text-base font-medium text-white/65 transition hover:bg-white/20 hover:text-white'
+                          ? 'rounded-2xl border border-[#5227FF] bg-[#5227FF] px-4 py-2.5 text-left text-sm font-bold text-white shadow-lg shadow-indigo-950/20'
+                          : 'rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white/80 transition hover:bg-white/20 hover:text-white'
                       }
                     >
                       {placementTypeLabels[type]}
