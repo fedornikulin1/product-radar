@@ -1,0 +1,18 @@
+services:
+  product-radar:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: product-radar
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    volumes:
+      - product-radar-data:/app/data
+      - product-radar-uploads:/app/public/uploads
+    restart: unless-stopped
+
+volumes:
+  product-radar-data:
+  product-radar-uploads:
